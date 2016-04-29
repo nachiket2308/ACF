@@ -1,0 +1,172 @@
+<apex:component controller="zaapit.zaapit_jq_tabs" allowdml="true" extensions="zaapit.JSRemoteActions"> 
+<apex:attribute name="id" description="id for top parent related list" type="string" required="false"/>
+<script type="text/javascript">
+  var remoteTotMethod='{!$RemoteAction.JSRemoteActions.calculateTotalSumsRMT2}';
+  </script>
+<link rel="stylesheet" href="{!URLFOR($Resource.jqueryui_pck, '/jquery-ui-1.11.4.custom/jquery-ui.min.css')}" type="text/css"/>
+<link rel="stylesheet" href="{!URLFOR($Resource.zp_qtip, 'jquery.qtip.css')}"/>
+<script src="{!$Resource.zaapit__zp_jquery172}"></script>
+
+<script type="text/javascript" src="{!URLFOR($Resource.jqueryui_pck, '/jquery-ui-1.11.4.custom/jquery-ui.min.js')}"></script>
+<script src="{!$Resource.zaapit__zaapit_tab_js}"></script>
+<script type="text/javascript" src="{!URLFOR($Resource.zp_qtip, 'jquery.qtip.js')}" async="async"/>
+<style>
+body.hasMotif{!if($CurrentPage.parameters.isdtp==null || $CurrentPage.parameters.isdtp=='','X3','')}{margin:0px;}
+.ui-tabs-anchor{outline: none;line-height: 16px;}
+#tabs a[vfname] .nums{
+position: relative;
+  left: 3px;
+  top: -1px;
+  font-size: 7pt;
+  background: #cccccc;
+  color: white;
+  padding: 3px;
+  border-radius: 5px;
+  line-height:7pt;
+  text-align: center;
+  display: inline-block;
+}
+
+#tabs .ui-state-active a[vfname] .nums{
+  background: #ccccff;
+  color: white;
+}
+
+#tabs .ui-icon.closetab1{margin-top: 7px;line-height:15px;}
+.closetab1{display:inline-block;}
+.ui-icon{display:inline-block;}
+#tabs .noneeditbtns{display:inline-block;margin-top: 8px;line-height:15px;padding-left:3px;}
+.ui-tabs .ui-tabs-panel {padding: 5px;}
+#tabs li a{padding-right: 5px;}
+.btnHlpr1{position:relative;}
+.btnHlpr1Z{position:absolute;z-index:5;right:9px;top:7px;display:inline-block;}
+.btnHlpr1Z .ui-button-text-only .ui-button-text {padding:5px;}
+.hd1{display:none;}
+.zp_iframesx{min-height:100px;}
+#loadingx1Anchor{position:relative;}
+#loadingx1{z-index:3;position:absolute;background:#E5E5E5 url('/img/loading.gif') 45% 45% no-repeat;}
+#tabs .ui-icon.closetab1.editbtns{}
+.SaveAlert1{padding:5px;position:absolute;right:150px;z-index:6;top:7px;}
+.EditAlert1{padding:5px;position:absolute;right:150px;z-index:6;top:7px;}
+.helpQMSFDC {
+    background: url("/img/alohaSkin/help_orange.png") no-repeat scroll right top rgba(0, 0, 0, 0);
+    display: inline-block;
+    line-height: 18px;
+    padding-right: 15px;
+    margin-left: 6px;
+}
+ body .qtip-brd-gry{border:1px solid#999999;font-size:9pt;}
+  body .qtip-content .bPageBlock{margin-bottom: 0px;background:#ffffff;}
+  body .qtip-content{line-height:19px;}
+  body .center1 .qtip-content{text-align:center;}
+</style>
+
+
+<apex:form id="pgblck">
+<apex:outputPanel id="mainTB1">
+<script type="text/javascript">
+function setFocusOnLoad() {}//mockachino!
+</script>
+<script type="text/javascript" defer="defer">
+var tabLabelTranslation="{!IF(currConf.tabLabelTranslation__c==null && currConf.tabLabelTranslation__c!=''&& currConf.tabLabelTranslation__c!=' ','',$label[currConf.tabLabelTranslation__c])}";
+var vf_p_name__c="{!vf_p_name}".split("#");
+var vf_p_titles__c="{!vf_p_titles}".split("#");
+var mainID="{!mainID}";
+var parentLocParam1="{!parentWinLoc}";
+var UrlEnd1="{!UrlEnd1}";
+var stragePref=UrlEnd1+"~";//mainID
+var hasSFDCURL={!IF($Label.Salesforce_Full_URL!='-','true','false')};
+var Salesforce_Full_URL="{!$Label.Salesforce_Full_URL}";
+var inIframe=(window.self != window.top);  
+  var totRowsForFOUNDONQ=0;
+var currencyCodeSTR="";
+var currencyCodeNum=0;
+ var lastURlIFrm=null;
+ var tabs =null;
+ var dialog=null;
+var tp_conf_strat="{!tp_conf_strat}";
+
+$(document).ready(function(){
+setTimeout(function(){
+onloadReady2(); 
+readyOnload();
+},300)
+});
+</script>
+
+<apex:pageMessages id="mainTB1Err"/>
+
+<div id="dialog" title="{!$Label.tabs_new_tab}" class="hd1 ui-front">
+
+<fieldset class="ui-helper-reset">
+<table cellspacing="7">
+<tr>
+<th>
+<label for="tab_title">{!$Label.tabs_title}</label>
+</th><td>
+<input type="text" name="tab_title" id="tab_title" value="" class="ui-widget-content ui-corner-all"/>
+</td>
+</tr><tr>
+<th>
+<label for="tab_content">{!$Label.tabs_smart_table}</label>
+</th><td nowrap="nowrap">
+       <apex:selectList value="{!pdOpt1}" multiselect="false" size="1"  styleClass="tablesSel tab_content">
+            <apex:selectOptions value="{!availVFPagess}"/> 
+            </apex:selectList>
+            <span class="helpQMSFDC btt1F" title="{!$Label.new_tab_tooltip}">&nbsp;</span>
+            </td>
+            </tr>
+</table>
+</fieldset>
+
+</div>
+
+<div class="btnHlpr1">
+<div class="SaveAlert1 hd1 ui-state-highlight ui-corner-all">{!$Label.tabs_dont_forget} <span class="ui-icon ui-icon-arrowthick-1-e" style="display:inline-block;">&nbsp;</span></div>
+<div class="EditAlert1 hd1 ui-state-highlight ui-corner-all">{!$Label.tabs_click_pencil}<span class="ui-icon ui-icon-arrowthick-1-e" style="display:inline-block;">&nbsp;</span></div>
+<div class="btnHlpr1Z">
+<button id="cancle1" type="button" onclick="refresh1();" class="editbtns hd1 ui-state-default ui-corner-all btt1F" title="{!$Label.tabs_Cancel}"><span class="ui-icon ui-icon-refresh"></span></button>
+<button id="save1" type="button" onclick="saveFuncPre();" class="editbtns hd1 ui-state-default ui-corner-all btt1F" title="{!$Label.tabs_save}"><span class="ui-icon ui-icon-disk"></span></button>
+<button id="add_tab2" type="button" onclick="dialog.dialog( 'open' );" class="editbtns hd1 ui-state-default ui-corner-all btt1F" title="New Tab"><span class="ui-icon  ui-icon-circle-plus"></span></button>
+<button id="Edit1BTN" type="button" onclick="clickPencilToEdit(this);" class="ui-state-default ui-corner-all btt1F {!IF($User.Enable_ZaapIT_s_Layout_Editor__c || showCutomizeLinkUserGS,'','hd1')}" title="{!$Label.tabs_click_edit}<br><br>{!$Label.edit_explain}"><span class="ui-icon ui-icon-pencil"></span></button>
+
+</div>
+</div>
+<div id="loadingx1Anchor"><div id="loadingx1" class="hd1"></div></div>
+<div id="tabs">
+<ul style="min-height:32px;">
+</ul>
+
+</div>
+<div class="hd1">
+<apex:inputtext value="{!vf_p_name}" styleClass="vf_p_name"/>
+<apex:inputtext value="{!vf_p_titles}" styleClass="vf_p_titles"/> 
+</div>
+</apex:outputPanel>
+         <apex:actionFunction action="{!save}" name="saveFunc"
+            reRender="mainTB1">
+        </apex:actionFunction>
+</apex:form>
+
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script>
+document.write("<"+"script type=\"text/javascript\">google.load('visualization', '1.0');<"+"/script"+">");
+</script>
+ <script>
+ try{
+  HTMLElement.prototype.appendChild2=HTMLElement.prototype.appendChild;
+  HTMLElement.prototype.appendChild=function(s){
+  try{
+ 	if(s!=null && s.src!=null && (s.src.indexOf("MarketingSurveyResponse")>-1 || s.src.indexOf("SessionServer190.js.map")>-1)){
+ 		//alert("1");
+ 	}else{
+ 		return this.appendChild2(s);
+ 	}
+ 	}catch(e){alert(e);}
+ 	//alert(s);
+ }
+ }catch(e1){}
+ //alert(document.getElementsByTagName('script')[0].appendChild);
+ </script>
+</apex:component>

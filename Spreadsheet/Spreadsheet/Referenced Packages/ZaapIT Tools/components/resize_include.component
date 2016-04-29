@@ -1,0 +1,14 @@
+<apex:component allowdml="true"  access="global" >
+
+<script src="{!$Resource.zaapit__zp_jquery172}"></script>
+<script>try{ var $qnb=jQuery.noConflict();
+ }catch(epx1zp){} 
+ /*zp lstnr*/ try{
+ var eventMethodx1 = window.addEventListener ? "addEventListener" : "attachEvent";
+var eventerx1 = window[eventMethodx1];
+var messageEventx1 = eventMethodx1 == "attachEvent" ? "onmessage" : "message";
+eventerx1(messageEventx1,function(e) { try{
+if(e.data.indexOf("zaapit_tb_")>0){ $qnb.globalEval(e.data);
+ } }catch(e2){ alert(e2);}},false);
+}catch(e1){alert(e1);}</script>
+</apex:component>

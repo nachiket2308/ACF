@@ -1,0 +1,659 @@
+<apex:component allowdml="true" controller="zaapit.JSZTableAction" access="global">  
+<apex:attribute name="idx" description="id for hierarcy node" type="string" required="false" access="global"/>
+<apex:attribute name="table" default="account" description="main table" type="string" required="false" access="global"/>
+<apex:attribute name="title1" default="Account Hierarchy" description="Hierarchy Title" type="string" required="false" access="global"/>
+<apex:attribute name="sField" default="Id" description="son field" type="string" required="false" access="global"/>
+<apex:attribute name="pField" default="ParentId" description="parent field" type="string" required="false" access="global"/>
+<apex:attribute name="extraField" default="name,annualrevenue,shippingstreet,shippingcity,shippingcountry,shippingpostalcode,shippingstate" description="parent field" type="string" required="false" access="global"/>
+<apex:attribute name="orderby" default="name asc" description="parent field" type="string" required="false" access="global"/>
+<apex:attribute name="linksuffix" default="" description="Link Suffix" type="string" required="false" access="global"/>
+<apex:attribute name="titleLink" default="" description="Title Link" type="string" required="false" access="global"/>
+<apex:attribute name="chartTypeTH" default="6" description="Chart Type Threshold" type="integer" required="false" access="global"/>
+<style>
+#loadingx1Anchor{position:relative;}
+#loadingx1{z-index:9;position:absolute;background:#FFFFFF url('/img/loading.gif') 45% 45% no-repeat;min-height:100px;height:100%;width:100%;min-width:250px;opacity: 0.5;filter: alpha(opacity=50);-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";-khtml-opacity: 0.5;-moz-opacity: 0.5;}
+</style>
+<div id="loadingx1Anchor"><div id="loadingx1" class="hd1"></div></div>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/themes/redmond/jquery-ui.css" type="text/css"/>
+<link rel="stylesheet" href="{!URLFOR($Resource.zp_qtip, 'jquery.qtip.css')}"/>
+<script src="{!$Resource.zaapit__zp_jquery172}"></script>
+<script type="text/javascript" src="{!$Resource.zp_jqueryui_1820}"></script>
+<script type="text/javascript" src="{!$Resource.zaapit_tb_top_js}" ></script>
+<script type="text/javascript" src="{!URLFOR($Resource.zp_qtip, 'jquery.qtip.js')}"/>
+
+<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+<style>
+body .qtip-content{padding:0px;}
+body .qtip-content .bPageBlock{margin-bottom: 0px;background:#ffffff;}
+body {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.bbt1XD{padding:0px;min-width:45px;background:#ffffff;min-height:35px;;-moz-border-radius: 7px;border-radius: 7px;}
+.bbt1XD .h{text-align:center;padding:0px 0px 5px 0px; }
+.bbt1XD .h .btn{display:inline-block;padding:5px;text-decoration:none;}
+.ajaxwinPreview1{min-width:350px;}
+.smlArrow{
+    -ms-transform: rotate(45deg); /* IE 9 */
+    -webkit-transform: rotate(45deg); /* Chrome, Safari, Opera */
+    transform: rotate(45deg);
+}
+
+  .ui-tooltip, .arrow:after {
+    background: white;
+    border: 1px solid #aaaaaa;
+  }
+.arrow {
+padding:0px;
+    width: 45px;
+    height: 16px;
+    overflow: hidden;
+    position: absolute;
+    left: 50%;
+    margin-left: -35px;
+    bottom: -16px;
+  }
+  .arrow.top {
+    top: -16px;
+    bottom: auto;
+  }
+  .arrow.left { 
+    left: 80%;
+  }
+  .arrow.right { 
+    left: 20%;
+  }
+  .arrow:after {
+    content: "";
+    position: absolute;
+    left: 20px;
+    top: -20px;
+    width: 25px;
+    height: 25px;
+    box-shadow: 6px 5px 9px -9px black;
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    -o-transform: rotate(45deg);
+    tranform: rotate(45deg);
+  }
+  .arrow.top:after {
+    bottom: -20px;
+    top: auto;
+  }
+  
+body .ui-tooltip div.bbt1Loading,div.bbt1Loading{background:#ffffff url(/img/loading.gif) 7px 7px no-repeat; box-shadow:none;padding:15px;margin-left:30px;margin-right:30px;}
+body .ui-tooltip.alnk-tooltip-styling{border:0px solid #ffffff;padding:0px 0px 0px 0px;
+    background: transparent url("{!$Resource.zp_leftarrowhover}") no-repeat 1px 3px;box-shadow:none;font-size:1em;
+width:300px;
+}
+body .ui-tooltip.alnk-tooltip-styling .btnNIS{display:none;}
+body .ui-tooltip.alnk-tooltip-styling object{-moz-border-radius: 7px;border-radius: 7px;min-height:250px;}
+body .ui-tooltip.alnk-tooltip-styling img{-moz-border-radius: 7px;border-radius: 7px;border:0px; }
+body .ui-tooltip.alnk-tooltip-styling .ir{padding:5px;}
+body .ui-tooltip.alnk-tooltip-styling>div.ui-tooltip-content{border:1px solid #EFEFEF;background:#ffffff;margin-top:0px;box-shadow:2px 2px 2px 2px #999999;-moz-border-radius: 7px;border-radius: 7px;}
+body .ui-tooltip .secondaryPalette.bPageBlock{background:#ffffff;}
+body .ui-tooltip{min-width:300px;}
+#hierarcyID{min-height:250px;width:100%;height:100%;}
+#hierarcyIDW{min-height:390px;width:98%;padding:5px 5px 5px 5px;overflow-x:auto; height:100%;}
+.hbxx1{display:block;font-size:125%;width:100%;}
+.hbxx2{display:inline;font-size:115%;}
+.scale1{
+       -ms-transform: scale(1,1); /* IE 9 */
+    -webkit-transform: scale(1,1); /* Chrome, Safari, Opera */
+    transform: scale(1,1);
+}
+.rotate90{
+ -ms-transform: rotate(90deg); /* IE 9 */
+    -webkit-transform: rotate(90deg); /* Chrome, Safari, Opera */
+    transform: rotate(90deg);
+}
+.rotatem90{
+-ms-transform: rotate(-90deg); /* IE 9 */
+    -webkit-transform: rotate(-90deg); /* Chrome, Safari, Opera */
+    transform: rotate(-90deg);
+}
+#hierarcyID{padding:10px}
+.helpMob1{display:none;}
+
+#hierarcyID .google-visualization-orgchart-node { min-width:69px;min-height:43px;height:43px;
+position:relative;
+border-radius: 10px;
+padding:5px;
+  background-color: #edf7ff; /* fallback color if gradients are not supported */
+  background-image: -webkit-linear-gradient(#edf7ff, #cde7ee); /* For Chrome and Safari */
+  background-image:    -moz-linear-gradient(#edf7ff, #cde7ee); /* For old Fx (3.6 to 15) */
+  background-image:     -ms-linear-gradient(#edf7ff, #cde7ee); /* For pre-releases of IE 10*/
+  background-image:      -o-linear-gradient(#edf7ff, #cde7ee); /* For old Opera (11.1 to 12.0) */ 
+  background-image:         linear-gradient(#edf7ff, #cde7ee); /* Standard syntax; must be last */
+  vertical-align: middle;
+}
+
+#hierarcyID .google-visualization-orgchart-nodesel{ min-width:69px;min-height:43px;
+position:relative;
+    border-radius: 10px;
+padding:5px;
+  background-color: #fff7ae; /* fallback color if gradients are not supported */
+  background-image: -webkit-linear-gradient(#fff7ae,#eee79e); /* For Chrome and Safari */
+  background-image:    -moz-linear-gradient(#fff7ae,#eee79e); /* For old Fx (3.6 to 15) */
+  background-image:     -ms-linear-gradient(#fff7ae,#eee79e); /* For pre-releases of IE 10*/
+  background-image:      -o-linear-gradient(#fff7ae,#eee79e); /* For old Opera (11.1 to 12.0) */ 
+  background-image:         linear-gradient(#fff7ae,#eee79e); /* Standard syntax; must be last */
+  vertical-align: middle;
+}
+
+#hierarcyID #tf,#hierarcyID #tf ul{list-style-type:none;padding-right:50px;}
+#hierarcyID #tf ul{padding-left: 30px;}
+#hierarcyID #tf li{position:relative;padding-bottom:3px;}
+#hierarcyID #tf li a.cn{font-weight:bold;background:#eeeeff;display:inline-block;}
+#hierarcyID #tf li .m{position:absolute;z-index:2;left:-20px;display:inline-block;width:20px;height:15px;}
+#hierarcyID #tf li .cn1{margin-left:5px;color:#aaaaaa;display:inline-block; font-size:100%;vertical-align:0px;}
+#hierarcyID #tf li[c='0'] .cn1{color:#dddddd;}
+#hierarcyID #tf li[c='0'] .m .x{display:none;}
+#hierarcyID #tf li[c!='0'] .m .y{display:none;}
+#hierarcyID #tf li a .icoi{margin-left:10px;vertical-align:-1px;display:inline-block;background:url('/img/alohaSkin/info_sprite.png') 0px 0px no-repeat;width:20px;height:17px;line-height: 17px;
+opacity: 1.0;
+    filter: alpha(opacity=100);
+}
+#hierarcyID #tf a {line-height: 17px;}
+#hierarcyID a.btt1.hbxx1{width:11px;position:absolute;z-index:2px;right:5px;top:0px;}
+
+#hierarcyID a .icoi{margin-left:0px;vertical-align:-1px;display:inline-block;background:url('/img/alohaSkin/info_sprite.png') 0px 0px no-repeat;width:11px;height:15px; 
+opacity: 0.4;
+    filter: alpha(opacity=40);
+    }
+    #hierarcyID a .icoi:hover{margin-left:0px;vertical-align:-1px;display:inline-block;background:url('/img/alohaSkin/info_sprite.png') 0px 0px no-repeat;width:11px;height:15px; 
+opacity: 1.0;
+    filter: alpha(opacity=100);
+    }
+    body .qtip-brd-gry{border:1px solid#999999;font-size:9pt;}
+    
+     body .qtip-brd-gry  .qtip-close{background:transparent;border:0px;padding-top:1px;display:inline-block;top:-19px;right:0px;}
+ body .qtip-brd-gry .qtip-icon .ui-icon, body .qtip-brd-gry .ui-state-over .ui-icon{background:transparent;border:0px;font-size:16px;color:#999999;font-weight:bold;}
+ 
+ 
+</style> 
+<script type="text/javascript">
+function setFocusOnLoad() {}//mockachino!
+
+function navigateToUrl(url,x,y){
+	top.location=url;
+}
+
+function stopPRG(e){
+    e.stopPropagation();
+}
+var parentLocParam1="{!parentWinLoc}";
+var tp_conf="";
+var isMSIE8= navigator.userAgent.indexOf('MSIE 8')>-1;
+var turnOnscrolModeForTabsRL=0;
+var hasSFDCURL={!IF($Label.Salesforce_Full_URL!='-','true','false')};
+var Salesforce_Full_URL="{!$Label.Salesforce_Full_URL}";
+ var UrlEnd1="{!UrlEnd1}"; 
+
+var remoteHierarchyFetcher='{!$RemoteAction.JSZTableAction.hierarchyFetcherx}';  
+function getHierarchy(){
+//alert("{!idx}");
+    Visualforce.remoting.Manager.invokeAction(
+                remoteHierarchyFetcher,
+                "{!table}",
+                "{!sField}",
+                "{!pField}",
+                "{!extraField}", 
+                "{!idx}",
+                "{!orderby}",
+                function(result, event){
+                    if (event.status && result!=null) {
+                        //alert(result.length);
+                        if(result.length>0){
+                        var graphArr=new Array();
+                            var useChart=result.length<{!chartTypeTH};
+                            var cssIdx=(useChart?1:2);
+                            for(var x=0;x<result.length;x++){
+                                //alert(result[x].{!pField});
+                                var strID=result[x].{!sField};
+                                var srtShort=strID.substring(0,strID.length-3);
+                                dataChart.push([{v:result[x].{!sField}, f:"<a class=\"hbxx"+cssIdx+" "+strID+" "+srtShort+" "+(srtShort.indexOf("{!idx}")>-1?"cn":"")+"\" href=\"../"+result[x].{!sField}+"{!linksuffix}\" afld=\""+result[x].{!sField}+"\" objk=\"1\" alnk=\"../{0}/m?isAjaxRequest=1\" onclick=\"if(event==null || !event.ctrlKey){navigateZP('../"+result[x].{!sField}+"{!linksuffix}',top);return false;}\" >"+result[x].Name+"</a> <a class=\"btt1 hbxx"+cssIdx+" "+strID+" "+srtShort+" "+(srtShort.indexOf("{!idx}")>-1?"cn":"")+"\" onmouseover=\"qTipBble(this);\" href=\"javascript:void(0);\" afld=\""+result[x].{!sField}+"\" objk=\"1\" alnk=\"../{0}/m?isAjaxRequest=1\" onclick='stopPRG(event)'><span class='icoi' onclick='stopPRG(event)'>&nbsp;</span></a>"}, result[x].{!pField}, '']);
+                                
+                                
+                            }
+                            if(useChart){
+                                drawChart();
+                            }else{
+                                drawTree1();
+                            }
+                            //fixBubbles();
+                            fixIfmHegt();
+                        }
+                        //alert(result);
+                    
+                     } else if (event.type === 'exception') {
+                        //self.location=self.location;
+                        if(event.message!=null && (event.message+"").indexOf("Unable to conn")==-1){
+                            if($("body:visible").size()>0)alert("An error has occurred: "+event.message);
+                        }
+    
+                    } else {
+                    }
+                }, 
+                {escape: true}
+            );
+                return;
+            }
+            
+  
+      google.load('visualization', '1', {packages:['orgchart']});
+     // google.setOnLoadCallback(drawChart);
+     var dataChart=[];
+    
+    function drawTree1(){
+    //alert(dataChart);
+        var res=$("<ul id='tf'/>");
+        for(var i1=0; i1 < dataChart.length; i1++){
+           // alert(dataChart[i1]);
+           var p1=res.find("ul#UL"+dataChart[i1][1]);
+           if(p1.size()==0){
+                p1=res;
+           }else{
+                updateNumH(res,dataChart[i1][1]);
+                
+           }
+           p1.append("<li id='"+dataChart[i1][0].v+"' p='"+dataChart[i1][1]+"' c='0'><span class='m' onclick='togT1(this);'><span class='ui-icon ui-icon-radio-off'></span></span>"+dataChart[i1][0].f+"  <span class='cn1'>(<span class='cni'>0</span>)</span></li><ul id='UL"+dataChart[i1][0].v+"'/>");
+        }
+
+        //alert(res);
+        $("#hierarcyID").html(res);
+    }
+    function updateNumH(res,pid){
+                 var px=res.find("li#"+pid);
+                 if(px.size()>0){
+                    var c=Number(px.attr("c"));
+                    c=c+1;
+                    if(c==1){
+                        var z=px.find(".ui-icon-radio-off:first");
+                        z.removeClass("ui-icon-radio-off");
+                        z.addClass("ui-icon-triangle-1-s");
+                    }
+                    px.attr("c",c);
+                    px.find(".cni:first").html(c);
+                    updateNumH(res,px.attr("p"));
+                }
+    }
+    function togT1(node1){
+        var z=$(node1);
+        var ico=z.find(".ui-icon:first");
+        var zLi=z.parents("li:first");
+        var ul1=$("ul#UL"+zLi.attr('id'));
+        if(ico.hasClass("ui-icon-triangle-1-e") ||ico.hasClass("ui-icon-triangle-1-s")){
+            if(ico.hasClass("ui-icon-triangle-1-e")){
+                 ico.removeClass("ui-icon-triangle-1-e");
+                 ico.addClass("ui-icon-triangle-1-s");
+                 ul1.show(500,fixIfmHegt);
+             }else{
+                 ico.removeClass("ui-icon-triangle-1-s");
+                 ico.addClass("ui-icon-triangle-1-e");
+                 ul1.hide(500,fixIfmHegt);
+             }
+         }
+    }
+      function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Name');
+        data.addColumn('string', 'Manager');
+        data.addColumn('string', 'ToolTip');
+        data.addRows(dataChart);
+        var chart = new google.visualization.OrgChart(document.getElementById('hierarcyID'));
+        chart.draw(data, {allowHtml:true});
+        
+        var selObj1=$(".{!idx}").parents(".google-visualization-orgchart-node:first").addClass("google-visualization-orgchart-nodesel");//[0].scrollIntoView();
+        var selObj1Pos=selObj1.position();
+        //fix scroll for the selected element
+        var wraperHalfW=$("#hierarcyIDW").width()/2-50;
+        var wraperHalfH=$("#hierarcyIDW").height()/2-50;
+        $("#hierarcyIDW").scrollTop(Math.max(0,Math.round(selObj1Pos.top-wraperHalfW))); 
+        $("#hierarcyIDW").scrollLeft(Math.max(0,Math.round(selObj1Pos.left-wraperHalfH)));
+        
+        $("#hierarcyID .google-visualization-orgchart-node").click(function(){
+            blockclickxx1++;
+            if(blockclickxx1==1){
+                $(this).find("a.hbxx1:first").click();
+            }
+        });
+      }
+      var blockclickxx1=0;
+      $(document).ready(function(){
+        getHierarchy();
+        if(!isSF1()){
+            $("body").click(function(){
+                $(".ui-tooltip:visible").hide();
+                fixIfmHegt();
+            });
+        }
+        try{
+        
+        if(!isMSIE8){
+            $("#silder1").slider({
+            orientation: "vertical",
+              value:1.0,
+                min: 0.1,
+                max: 1.0,
+                step: 0.1,
+            change: function( event, ui ) {
+            
+            var zoomf=ui.value;
+            $("#hierarcyID").css({"-ms-transform": "scale("+zoomf+","+zoomf+")", /* IE 9 */
+                "-webkit-transform": "scale("+zoomf+","+zoomf+")", /* Chrome, Safari, Opera */
+                "transform": "scale("+zoomf+","+zoomf+")"
+                });
+            }
+            });
+        }else{
+            $("#silder1W").hide();
+        }
+        }catch(e){
+        }
+        $("#loadingx1").hide();
+      });
+      
+      
+      
+
+
+ 
+      var clicked = false, clickY, clickX;
+      if(false && !isMSIE8){
+$(document).on({
+ //IE, Opera, Safari
+ 'mousewheel': function(e){
+     if(e.originalEvent.wheelDelta < 0) {
+         //scroll down
+         slideChange(-0.1,e);
+     }else {
+         //scroll up
+         slideChange(0.1,e);
+     }
+    
+     //prevent page fom scrolling
+     return false;
+ },
+'DOMMouseScroll': function(e){
+     if(e.originalEvent.detail > 0) {
+         //scroll down
+         slideChange(-0.1,e);
+     }else {
+         //scroll up
+         slideChange(0.1,e);
+     }
+
+     //prevent page fom scrolling
+     return false;
+ },
+    'mousemove': function(e) {
+        clicked && updateScrollPos(e);
+    },
+    'mousedown': function(e) {
+        clicked = ($(e.target).attr("id")!="hierarcyIDW");
+        clickY = e.pageY;
+        clickX = e.pageX;
+    },
+    'mouseup': function() {
+        clicked = false;
+        $('#hierarcyIDW').css('cursor', 'auto');
+    }
+});
+}
+var updateScrollPos = function(e) {
+    $('#hierarcyIDW').css('cursor', 'move');
+    $("#hierarcyIDW").scrollTop($("#hierarcyIDW").scrollTop() + (clickY - e.pageY));
+    $("#hierarcyIDW").scrollLeft($("#hierarcyIDW").scrollLeft() + (clickX - e.pageX));
+}
+
+      function slideChange(val,e){
+        var tpos;
+        var tpos2;
+        if(e!=null){
+            tpos = $(e.target).offset();
+        }
+        var vOld=$( "#silder1" ).slider( "value");
+        $( "#silder1" ).slider( "value", vOld+(val) );
+        if(e!=null){
+            tpos2 = $(e.target).offset();
+            
+             $("#hierarcyIDW").scrollTop(Math.max(0,$("#hierarcyIDW").scrollTop() + tpos2.top - tpos.top)); 
+             $("#hierarcyIDW").scrollLeft(Math.max(0,$("#hierarcyIDW").scrollLeft() + tpos2.left - tpos.left));
+        }
+      }
+      
+      var LastOpenToolTipObj=null;
+      
+      function fixBubbles(){
+      var curBbt1ID=0;
+      //var posx1={ my: "left top+25", at: "left bottom", collision: "flipfit", };//{ my: "left top", at: "right bottom", collision: "none"};
+      var posx1={my: "center top+25", at: "center bottom", collision: "flipfit"};
+            /*
+            , using: function( position, feedback ) {
+          $( this ).css( position);
+          alert(position.left+ " "+feedback.width());
+          $( "<div>" )
+            .addClass( "arrow" )
+            .left:
+            .appendTo( this );
+            //
+            //.addClass( feedback.vertical )
+            //.addClass( feedback.vertical )
+            //.addClass( feedback.horizontal )
+        }
+            */
+      var tooltipClass1="alnk-tooltip-styling";
+    if(isSF1()){
+        posx1=null;
+        tooltipClass1=null;
+        
+    }
+     if(!isSF1()){  
+     
+     
+$(document).tooltip({ 
+   position: posx1,//flipfit
+   items:".btt1[alnk]",
+    content: function() {
+        $(".lookupHoverDetail:visible").hide();
+        var result="";
+        var alnk=$(this).attr("alnk");
+        var afld=$(this).attr("afld");
+        var objk=$(this).attr("objk");
+        var href=$(this).attr("href");
+        if(alnk==null || alnk==undefined){
+            alnk="";
+        } 
+
+        if(afld=="href" && href!=null && href!="" &&( (href.indexOf("/")>-1 && href.indexOf("http")==0) || href.indexOf("javascript:srcUp(")==0)){
+            var href1=href;
+            if(href1.indexOf("javascript:srcUp(")>-1){
+                    var h2=href1;
+                    h2=unescape(h2);
+                    h2=h2.split("'")[1];
+                    if(h2.indexOf("?isdtp=vw")>-1){
+                        h2=h2.substring(0,h2.indexOf("?isdtp=vw"));
+                    }
+                    //alert(href1);
+                    href1=h2;
+            }
+            afld=href1.substring(href1.indexOf("/",9)+1);
+            //alert(afld);
+        }
+        if(alnk.indexOf("{0}")>-1){
+            alnk=alnk.replace(/\{0\}/ig,afld);//replace all params
+        }
+        if(alnk!=null && alnk!=undefined && alnk!="" && alnk.indexOf("retURL")==-1 && alnk.indexOf("?")>-1){
+            alnk=alnk+"&retURL="+escape((window.location+''));
+            //alert(alnk);
+        }
+        //alnk=alnk.replace(/&amp;/ig,'&');
+        //alert(alnk);
+        var id1=$(this).attr("id");
+        if(id1=='' || id1==undefined){
+            id1='bbt1X'+curBbt1ID;
+            curBbt1ID++;
+            $(this).attr("id",id1);
+        }
+        if(this==LastOpenToolTipObj){
+            return $("#"+id1+"D").parent().html();
+        }
+        try{
+          $(".ui-tooltip:visible").hide();
+        }catch(e){}
+        LastOpenToolTipObj=this;
+        var title=$(this).attr("title");
+        //alert(alnk+ " "+ objk);
+        if( alnk!='' && alnk!='undefined' && objk=='1'  && alnk!=undefined){
+            
+            result="<div id='"+id1+"D' class='bbt1XD' ><div class='bbt1Loading'><"+"script"+">$('.bbt1XD:visible').load('"+alnk+"',fixIfmHegt);<"+"/script"+"></div></div>";
+        }else if(alnk!='' && alnk!='undefined' && objk=='0' && alnk!=undefined){
+           result="<div id='"+id1+"D' class='bbt1XD'><div class='ir'><img width='280' src='"+alnk+"' onload='$(\".bbt1Loading:visible\").hide();' alt='{!$Label.Preview_not_Available}'/></div><div class='h'><a href='"+alnk+"' target=+'_blank' class='btn'>{!$Label.View_Download}</a></div></div>";
+            setTimeout("$(\".bbt1Loading:visible\").hide();",2000);
+            //result="<div id='"+id1+"D' class='bbt1XD'><div class='bbt1Loading'></div><object width='300' data='"+alnk+"' standby='Loading...' onload='$(\".bbt1Loading:visible\").hide();'> <div class='fnspt1'>Preview not Available</div><"+"script"+">setTimeout(\"$('#"+id1+"D').find('.bbt1Loading:first').hide()\",500);<"+"/"+"script"+"></object>";
+        }else{
+            result=title;
+        }
+        //alert(result);
+        
+        return result;
+    },
+    tooltipClass: tooltipClass1,
+    hide: { effect: "fadeOut",delay:3000, duration: 300 }
+    ,open:function(event, ui){
+        //fixIfmHegt();
+    }
+    ,close:function(event, ui){
+        //fixIfmHegt();
+    }
+   });
+   
+      }
+}
+function qTipBble(obj,onshow){
+
+	$(obj).attr("onmouseover","")
+        var result="";
+        var alnk=$(obj).attr("alnk");
+        var afld=$(obj).attr("afld");
+        var objk=$(obj).attr("objk");
+        var href=$(obj).attr("href");
+        if(alnk==null || alnk==undefined){ 
+            alnk="";
+        } 
+
+        if(afld=="href" && href!=null && href!="" &&( (href.indexOf("/")>-1 && href.indexOf("http")==0) || href.indexOf("javascript:srcUp(")==0)){
+            var href1=href;
+            if(href1.indexOf("javascript:srcUp(")>-1){
+                    var h2=href1;
+                    h2=unescape(h2);
+                    h2=h2.split("'")[1];
+                    if(h2.indexOf("?isdtp=vw")>-1){
+                        h2=h2.substring(0,h2.indexOf("?isdtp=vw"));
+                    }
+                    //alert(href1);
+                    href1=h2;
+            }
+            afld=href1.substring(href1.indexOf("/",9)+1);
+            //alert(afld);
+        }
+        if(alnk.indexOf("{0}")>-1){
+            alnk=alnk.replace(/\{0\}/ig,afld);//replace all params
+        }
+        if(alnk!=null && alnk!=undefined && alnk!="" && alnk.indexOf("retURL")==-1 && alnk.indexOf("?")>-1){
+        	var ret1=(window.location+'');
+        	if(ret1.indexOf('Integration')>-1){
+        		ret1="../{!$CurrentPage.parameters.id}";
+        	}
+            alnk=alnk+"&retURL="+escape(ret1);
+            //alert(alnk);
+        }
+//alert(alnk); 
+$(obj).qtip({
+    content: {
+        text: function(event, api) {
+            $.ajax({ url: alnk ,statusCode: {302: function() {
+		      top.location=top.location;
+		    }}})
+                .done(function(html) {
+                	html=html.replace(/<a /ig,"<a onclick='afix1(this);return false;' ").replace(/navigateToUrl/ig,"btnClk1");
+                    api.set('content.text', html);
+                    //fixIfmHegt();
+                })
+                .fail(function(xhr, status, error) {
+                    api.set('content.text', status + ': ' + error);
+                })
+
+            return "<div class='bbt1Loading'></div>";
+        },button: true
+    },
+    show: {
+        ready: true,
+        solo: true,
+        delay: 300
+    },
+    style: {
+        classes: 'qtip-light qtip-shadow qtip-rounded qtip-brd-gry',   
+         tip: {
+            corner: true,
+            width: 15,
+            height:15
+        }
+    },
+    position: {
+        //viewport: $(self),
+        my: 'leftTop left',  // Position my top left...
+        at: 'rightBottom right', // at the bottom right of...
+        //target: $('.selector') // my target
+    },
+    hide: {
+        fixed: true,
+        delay: 500
+    },
+    events:{
+       show:(onshow==null?function(event, api) {
+            setTimeout(fixIfmHegt,500);
+            setTimeout(fixIfmHegt,1000);
+        }:onshow)
+        ,hide: function(event, api) {
+            fixIfmHegt();
+        }
+    }
+    
+});
+}
+
+function afix1(obj){
+	var href=$(obj).attr("href");
+	top.location=href;
+}
+function btnClk1(href){
+	top.location=href;
+}
+    </script>
+<div style="position:relative;">
+<a style="position:absolute;top:3px;z-index:2;right:3px;display:inline-block;padding:5px;border:1px solid #d5d5d5;color:#999999;{!IF(titleLink!=null && titleLink!='','','text-decoration:none;')}" href="javascript:void(0)" onclick="{!IF(titleLink!=null && titleLink!='','window.open(\"'+titleLink+'\");','')}">{!title1}</a>
+<div id="hierarcyIDW">
+<div id="hierarcyID">
+</div>
+</div>
+<div id="silder1W" class="ui-state-default ui-corner-all" style="position:absolute;top:3px;z-index:2;left:3px;width:20px;padding:2px;">
+
+<div class="" style="margin:5px 0px 8px 1px;" onclick="slideChange(0.1);">
+<span class="ui-icon ui-icon-circle-plus"></span>
+</div>
+<div id="silder1" style="height:90px;margin-left:3px;"></div>
+<div class="" style="margin:8px 0px 5px 1px;" onclick="slideChange(-0.1);">
+<span class="ui-icon ui-icon-circle-minus"></span>
+</div>
+</div>
+
+<span class="helpMob1" style="position:absolute;top:200px;z-index:2;left:3px;display:none;padding:5px;border:1px solid #d5d5d5;color:#999999;font-size:115%;font-weight:bold;">{!$Label.Click_here_full_Interactive_Version}</span>
+</div>
+</apex:component>

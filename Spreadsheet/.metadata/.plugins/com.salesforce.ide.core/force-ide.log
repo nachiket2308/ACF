@@ -1,0 +1,74 @@
+ WARN [2015-08-20 16:26:10,759] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'AuraDefinitionBundle': Unable to get bean for id 'AuraDefinitionBundle'
+ WARN [2015-08-20 16:26:11,575] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'ExternalDataSource': Unable to get bean for id 'ExternalDataSource'
+ WARN [2015-08-20 16:26:11,591] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'NamedCredential': Unable to get bean for id 'NamedCredential'
+ WARN [2015-08-20 16:26:11,618] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'MatchingRules': Unable to get bean for id 'MatchingRules'
+ WARN [2015-08-20 16:26:11,626] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'ChannelLayout': Unable to get bean for id 'ChannelLayout'
+ WARN [2015-08-20 16:26:11,631] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'SharingRules': Unable to get bean for id 'SharingRules'
+ WARN [2015-08-20 16:26:11,643] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'CorsWhitelistOrigin': Unable to get bean for id 'CorsWhitelistOrigin'
+ WARN [2015-08-20 16:26:11,787] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'ActionLinkGroupTemplate': Unable to get bean for id 'ActionLinkGroupTemplate'
+ WARN [2015-08-20 16:26:11,835] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'SynonymDictionary': Unable to get bean for id 'SynonymDictionary'
+ WARN [2015-08-20 16:26:13,646] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'AuraDefinitionBundle': Unable to get bean for id 'AuraDefinitionBundle'
+ WARN [2015-08-20 16:26:13,656] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'ExternalDataSource': Unable to get bean for id 'ExternalDataSource'
+ WARN [2015-08-20 16:26:13,749] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'NamedCredential': Unable to get bean for id 'NamedCredential'
+ WARN [2015-08-20 16:26:13,819] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'MatchingRules': Unable to get bean for id 'MatchingRules'
+ WARN [2015-08-20 16:26:13,826] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'ChannelLayout': Unable to get bean for id 'ChannelLayout'
+ WARN [2015-08-20 16:26:13,924] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'SharingRules': Unable to get bean for id 'SharingRules'
+ WARN [2015-08-20 16:26:13,947] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'CorsWhitelistOrigin': Unable to get bean for id 'CorsWhitelistOrigin'
+ WARN [2015-08-20 16:26:14,517] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'ActionLinkGroupTemplate': Unable to get bean for id 'ActionLinkGroupTemplate'
+ WARN [2015-08-20 16:26:14,526] (ComponentFactory.java:getComponentBean:1154) - Unable to get component for id 'SynonymDictionary': Unable to get bean for id 'SynonymDictionary'
+ERROR [2015-08-20 16:39:16,211] (SyncServiceListenerBroadcaster.java:handleException:59) - Error executing a contributed ISyncServiceListener
+java.lang.NullPointerException
+	at com.salesforce.ide.core.model.ComponentList.getComponentFactory(ComponentList.java:62)
+	at com.salesforce.ide.core.model.ComponentList.getComponentListForComponentType(ComponentList.java:266)
+	at com.salesforce.ide.debug.ui.sync.SyncActionListener.collectDebuggerElements(SyncActionListener.java:154)
+	at com.salesforce.ide.debug.ui.sync.SyncActionListener.invalidateApexModelManager(SyncActionListener.java:122)
+	at com.salesforce.ide.debug.ui.sync.SyncActionListener.projectSync(SyncActionListener.java:114)
+	at com.salesforce.ide.core.services.hooks.SyncServiceListenerBroadcaster$1.run(SyncServiceListenerBroadcaster.java:54)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:42)
+	at org.eclipse.ui.internal.JFaceUtil$1.run(JFaceUtil.java:50)
+	at org.eclipse.jface.util.SafeRunnable.run(SafeRunnable.java:178)
+	at com.salesforce.ide.core.services.hooks.SyncServiceListenerBroadcaster.executeExtension(SyncServiceListenerBroadcaster.java:62)
+	at com.salesforce.ide.core.services.hooks.SyncServiceListenerBroadcaster.broadcast(SyncServiceListenerBroadcaster.java:40)
+	at com.salesforce.ide.core.model.ProjectPackageList.saveResources(ProjectPackageList.java:1210)
+	at com.salesforce.ide.core.model.ProjectPackageList.saveResources(ProjectPackageList.java:1127)
+	at com.salesforce.ide.core.services.ProjectService$1.run(ProjectService.java:2103)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2313)
+	at com.salesforce.ide.core.services.ProjectService.handleRetrieveResult(ProjectService.java:2099)
+	at com.salesforce.ide.ui.actions.RefreshResourceActionController.refreshSourceFolder(RefreshResourceActionController.java:238)
+	at com.salesforce.ide.ui.actions.RefreshResourceActionController.refreshResources(RefreshResourceActionController.java:146)
+	at com.salesforce.ide.ui.actions.RefreshResourceAction$1.execute(RefreshResourceAction.java:77)
+	at org.eclipse.ui.actions.WorkspaceModifyOperation$1.run(WorkspaceModifyOperation.java:106)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2313)
+	at org.eclipse.ui.actions.WorkspaceModifyOperation.run(WorkspaceModifyOperation.java:118)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+ WARN [2015-08-20 19:42:35,957] (ConnectionFactory.java:clearCache:220) - Clearing the following cached connections
+ WARN [2015-08-20 19:42:39,360] (DescribeObjectRegistry.java:clearCache:664) - Clearing cached describes
+ WARN [2015-08-20 19:42:39,369] (MetadataFactory.java:clearCache:129) - Clearing the following cached metadata stubs
+ERROR [2015-08-21 17:13:03,859] (SyncServiceListenerBroadcaster.java:handleException:59) - Error executing a contributed ISyncServiceListener
+java.lang.NullPointerException
+	at com.salesforce.ide.core.model.ComponentList.getComponentFactory(ComponentList.java:62)
+	at com.salesforce.ide.core.model.ComponentList.getComponentListForComponentType(ComponentList.java:266)
+	at com.salesforce.ide.debug.ui.sync.SyncActionListener.collectDebuggerElements(SyncActionListener.java:154)
+	at com.salesforce.ide.debug.ui.sync.SyncActionListener.invalidateApexModelManager(SyncActionListener.java:122)
+	at com.salesforce.ide.debug.ui.sync.SyncActionListener.projectSync(SyncActionListener.java:114)
+	at com.salesforce.ide.core.services.hooks.SyncServiceListenerBroadcaster$1.run(SyncServiceListenerBroadcaster.java:54)
+	at org.eclipse.core.runtime.SafeRunner.run(SafeRunner.java:42)
+	at org.eclipse.ui.internal.JFaceUtil$1.run(JFaceUtil.java:50)
+	at org.eclipse.jface.util.SafeRunnable.run(SafeRunnable.java:178)
+	at com.salesforce.ide.core.services.hooks.SyncServiceListenerBroadcaster.executeExtension(SyncServiceListenerBroadcaster.java:62)
+	at com.salesforce.ide.core.services.hooks.SyncServiceListenerBroadcaster.broadcast(SyncServiceListenerBroadcaster.java:40)
+	at com.salesforce.ide.core.model.ProjectPackageList.saveResources(ProjectPackageList.java:1210)
+	at com.salesforce.ide.core.model.ProjectPackageList.saveResources(ProjectPackageList.java:1127)
+	at com.salesforce.ide.core.services.ProjectService$1.run(ProjectService.java:2103)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2313)
+	at com.salesforce.ide.core.services.ProjectService.handleRetrieveResult(ProjectService.java:2099)
+	at com.salesforce.ide.ui.actions.RefreshResourceActionController.refreshSourceFolder(RefreshResourceActionController.java:238)
+	at com.salesforce.ide.ui.actions.RefreshResourceActionController.refreshResources(RefreshResourceActionController.java:146)
+	at com.salesforce.ide.ui.actions.RefreshResourceAction$1.execute(RefreshResourceAction.java:77)
+	at org.eclipse.ui.actions.WorkspaceModifyOperation$1.run(WorkspaceModifyOperation.java:106)
+	at org.eclipse.core.internal.resources.Workspace.run(Workspace.java:2313)
+	at org.eclipse.ui.actions.WorkspaceModifyOperation.run(WorkspaceModifyOperation.java:118)
+	at org.eclipse.jface.operation.ModalContext$ModalContextThread.run(ModalContext.java:122)
+ WARN [2015-08-21 19:56:33,162] (ConnectionFactory.java:clearCache:220) - Clearing the following cached connections
+ WARN [2015-08-21 19:56:33,291] (DescribeObjectRegistry.java:clearCache:661) - No cached describes
+ WARN [2015-08-21 19:56:33,326] (MetadataFactory.java:clearCache:129) - Clearing the following cached metadata stubs

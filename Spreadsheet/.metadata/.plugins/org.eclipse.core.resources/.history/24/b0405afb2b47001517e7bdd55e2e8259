@@ -1,0 +1,5 @@
+<apex:page >
+{!$Label.follow_instruction_guide}
+{!$Label.Welcome_Tour}
+{!$Label.welcome_guide_me}
+</apex:page>

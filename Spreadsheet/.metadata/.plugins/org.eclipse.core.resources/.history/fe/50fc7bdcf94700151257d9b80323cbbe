@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <webLinks>
+        <fullName>Add_to_Campaign</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Add to Campaign</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>var checkedIds=&quot;&quot;; 
+var checkedId1=&quot;&quot;; 
+var leadCount=0; 
+$(&quot;.lcbX input:checked&quot;).each(function(){ 
+checkedId1=$(this).parents(&quot;.lcbX:first&quot;).attr(&quot;rid&quot;); 
+//alert(checkedId1.length);
+if(checkedId1!=null &amp;&amp; checkedId1.length==18){
+    checkedId1=checkedId1.substring(0,15);
+}
+checkedIds+=&quot;&amp;ids=&quot;+checkedId1; 
+leadCount++; 
+}); 
+if(leadCount&lt;1){ 
+alert(&quot;Please select at least one row&quot;); 
+}else{ 
+var ret1=escape(&apos;../apex/zaapit__Add_To_Campaign_Completed?isdtp=vw&amp;s=&apos;);
+
+var win1=window.open(&quot;/ui/campaign/MassAddCMFromListingWizard?ent=contact&amp;retURL=&quot;+ret1+&quot;0&amp;wizardRetUrl=&quot;+ret1+&quot;1&amp;macmflw_idSourceType=List&amp;macmflw_memberType=Contact&quot;+checkedIds+&quot;&amp;isdtp=vw&quot;,&quot;Add to Campaign&quot;, &quot;height=800,width=800,top=100,left=100,fullscreen=0,scrollbars=yes&quot;);
+
+var timer = setInterval(function() { 
+if(win1.closed) { 
+clearInterval(timer); 
+$(&quot;.seatchInptFZP&quot;).keyup(); 
+} 
+}, 1000); 
+
+} 
+return false;</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Merge_Contacts1</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Merge Contacts</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>var checkedIds=&quot;&quot;;
+var checkedId1=&quot;&quot;;
+var contOrg=&quot;&quot;;
+var acc1=&quot;&quot;;
+var contactCount=0;
+$(&quot;.lcbX input:checked&quot;).each(function(){
+checkedId1=$(this).parents(&quot;.lcbX:first&quot;).attr(&quot;rid&quot;);
+contOrg=contOrg+&quot;,.RID&quot;+checkedId1;
+if(checkedId1!=null &amp;&amp; checkedId1.length&gt;15){
+  checkedId1=checkedId1.substring(0,15);
+}
+checkedIds+=&quot;&amp;cid=&quot;+checkedId1;
+contactCount++;
+});
+if(contactCount&gt;3){
+alert(&quot;Please select up to 3 Contacts to merge!&quot;);
+}else if(contactCount&lt;2){
+alert(&quot;Please select at least 2 Contacts to merge!&quot;);
+}else{
+var href1= &quot;&quot;; 
+$(contOrg.substring(1)).each(function(){
+  var fndA=$(this).parents(&quot;tr:first&quot;).find(&quot;.oSt_accountid&quot;).find(&quot;a[id*=&apos;lookup&apos;]:first&quot;);
+  if(fndA.size()&gt;0){
+    try{
+       //alert(fndA.attr(&quot;id&quot;));
+       href1 = (fndA.attr(&quot;id&quot;)+&quot;&quot;).substring(6,21);
+    }catch(e1){}
+  }
+});
+//alert(href1 + &quot; &quot;+contOrg);
+if(href1!=null &amp;&amp; href1!=&quot;&quot;){
+acc1=href1;
+//acc1=(href1!=null &amp;&amp; href1!=&quot;undefined&quot;?href1.split(&quot;.com/&quot;)[1]:&quot;&quot;); //href1.split(&quot;.com/&quot;)[1];
+var win1=window.open(&quot;/merge/conmergewizard.jsp?buttonPressed=0&quot;+checkedIds+&quot;&amp;currentStage=0&amp;goNext=Next&amp;id=&quot;+acc1+&quot;&amp;retURL=%2Fapex%2Fzaapit__Merge_Completed&amp;srch=&amp;visited_0=1&amp;isdtp=vw&quot; ,&quot;Merge_Contacts&quot;,&quot;height=800,width=800,top=100,left=100,fullscreen=0,scrollbars=yes&quot;);
+win1.focus();
+
+var timer = setInterval(function() {
+if(win1.closed) {
+clearInterval(timer);
+//$(&quot;.seatchInptFZP&quot;).keyup();
+jumpToClk(currPageCls,600);
+
+}
+}, 1000);
+}else{/*account not found*/
+  alert(&quot;Please assign one of the selected contacts to an account before merging the contacts!&quot;);
+
+}
+}
+return false;</url>
+    </webLinks>
+    <webLinks>
+        <fullName>zp_actions</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>ZP Actions</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <url>{!requireScript($Label.zp_action_link)}</url>
+    </webLinks>
+</CustomObject>

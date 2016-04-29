@@ -1,0 +1,51 @@
+/*
+ *  ListViewFilterController for ListViewFilter page.
+ *  NOTE - This class is controller for ListViewFilter page.
+ *  @author - Suhas
+ *  Date - 14/8/2015
+ */
+public with sharing class ListViewFilterController {
+
+    public String viewNameString                    { get; set; }
+    public String viewUniqueNameString              { get; set; }
+    public String selectedFields                    { get; set; }
+    public List<SelectOption>displayUserFieldsList  { get; set; }
+
+    public Id currentLoggedInUser;
+    public String sObjectName;
+
+    //Default constructor. 
+    public ListViewFilterController() {
+        init();
+    }
+
+    //Initialization block.
+    public void init() {
+        currentLoggedInUser = UserInfo.getUserId();
+        system.debug('currentLoggedInUser=====>>>'+currentLoggedInUser);
+        sObjectName = apexpages.currentpage().getparameters().get('sObject');
+        system.debug('sObjectName=====>>>>>'+sObjectName);
+        displayUserFieldsList = new List<SelectOption>();
+        getUserFields();
+    }
+
+    //Gets the fields which are accessible and editable by a user.
+    public void getUserFields() {
+        Map<String, Schema.SObjectType> GlobalDescribeMap = Schema.getGlobalDescribe();
+        Schema.SObjectType sObjType = GlobalDescribeMap.get(sObjectName);
+        Schema.DescribeSObjectResult dsr = sObjType.getDescribe() ;
+        Map<String,Schema.SObjectField> fieldMap = dsr.fields.getMap() ;
+        system.debug('fieldMap====>>>>>'+fieldMap);
+        for(String field : fieldMap.keyset()) {
+            Schema.DescribeFieldResult desribeResult = fieldMap.get(field).getDescribe();
+            if(desribeResult.isCreateable() && desribeResult.isAccessible() && !desribeResult.isCalculated()) {    
+                displayUserFieldsList.add(new SelectOption(desribeResult.getLabel(), desribeResult.getName()));       
+            }
+        }
+    }
+
+    public void checkSelectedValues() {
+        system.debug('selectedFields====>>>>'+selectedFields);
+        system.debug('viewNameString===>>>'+viewNameString);
+    }
+}

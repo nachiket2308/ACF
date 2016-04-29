@@ -1,0 +1,86 @@
+<apex:component controller="zaapit.CreateObject" allowdml="true" >
+<script type="text/javascript" src="{!$Resource.zp_jquery172}"></script>
+   <style>
+    #loadingx1Anchor{position:relative;}
+	#loadingx1{z-index:9;position:absolute;background:#E5E5E5 url('/img/loading.gif') 45% 45% no-repeat;}
+    .hd1{display:none;}
+    .comboboxIcon{vertical-align:middle;}
+    .comboboxIconOn{vertical-align:middle;}{vertical-align:middle;}
+    </style>
+    <script>
+    function loadingSH(){
+    $("#loadingx1").fadeTo("fast",0.5);
+    $("#loadingx1").width($("#mainTBX1").width());
+    $("#loadingx1").height($("#mainTBX1").height());
+    //alert($("#mainTBX1").height());
+    $("#loadingx1").show();
+}
+    </script>
+<div id="loadingx1Anchor"><div id="loadingx1" class="hd1"></div></div>
+    <div id="mainTBX1" >
+    <apex:form rendered="{!NOT(createSucc)}" >
+ 
+    <a style="position:absolute;right:0px;z-index:2;right: 10px;top: 5px;" href="../apex/zaapit_tb_{!confName}" target="_blank" onclick="return confirm('To add or remove fields from this layout you need to edit the layout in the preview page.\n\nContinue to the preview page?');">{!$Label.Edit_Layout}</a>
+
+        <apex:pageBlock title="{!currConf.zaapit__title__c}" >
+            <apex:pageBlockButtons >
+             <apex:commandButton action="{!create}" value="{!$Label.create_rows_close}" onclick="loadingSH();">
+	                 <apex:param value="1" assignto="{!contAfterCreate}"/>
+                </apex:commandButton>
+
+                <apex:commandButton value="{!$Label.Cancel_button}" onclick="closeWin();return false;">
+                </apex:commandButton>
+            </apex:pageBlockButtons>
+            <apex:pageMessages id="mainTB1Err"/>
+            
+    <apex:outputText value="{!IF($CurrentPage.parameters.label!='',$Label[$CurrentPage.parameters.label],$Label.Fill_in_the_fields_to_create_X_rows)}" style="display:block;color:#666666;padding:10px;font-weight:bold;font-size:11pt">
+       <apex:param value="{!connectedIDsNum}"/>
+       <apex:param value="{!tableNameDis}"/>
+    </apex:outputText>
+            <apex:pageBlockSection columns="1">
+               <apex:repeat value="{!fieldset}" var="tf">
+               <apex:inputfield value="{!newRow[tf]}" styleCLass="fldCls"/>  
+               </apex:repeat>
+            </apex:pageBlockSection>
+            
+            
+        </apex:pageBlock>
+    </apex:form>
+     </div>
+    <apex:outputText rendered="{!(createSucc)}" >
+  
+	  <div style="font-size: 15pt;margin: 20px;color:#00AA00;text-align: center;display: block;">
+  <apex:outputText value="{!IF(connectedIDsNum==1,$Label.X1_row_was_created_Successfully,$Label.X0_1_were_created_Successfully)}" >
+       <apex:param value="{!connectedIDsNum}"/>
+       <apex:param value="{!tableNameDis}"/>
+    </apex:outputText>
+
+    
+</div>
+<div style="text-align: center;display: block;">
+	  	  <a class="btn" style="text-decoration: none;" href="../apex/zaapit_tb_{!confName}?id={!newIds}" target="_blank">Preview</a>
+	  	  <a class="btn" style="text-decoration: none;" href="javascript:void(0)" onclick="closeWin();">Close window</a>
+	  </div>
+	<script>
+	//alert("{!newIds}");
+	</script>
+
+    </apex:outputText>
+    
+    <script>
+    function closeWin(){
+    	try{
+    		loadingSH();
+    		parent.closeGenWindow1();
+    	}catch(e){
+    	}
+    }
+    </script>
+  
+      <apex:outputText rendered="{!$CurrentPage.parameters.isdtp!=''}" >
+      <style>
+      
+		body .apexp .bPageBlock.brandSecondaryBrd.apexDefaultPageBlock.secondaryPalette{border:0px;}
+      </style>
+    </apex:outputText>
+</apex:component>

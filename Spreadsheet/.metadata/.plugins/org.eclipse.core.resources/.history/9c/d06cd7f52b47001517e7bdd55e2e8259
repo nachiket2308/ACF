@@ -1,0 +1,30 @@
+<apex:component >
+<apex:attribute name="maxRowsPerPage" description="maxRowsPerPage" type="integer" required="true"/>
+<apex:attribute name="isEditOL" description="isEditOL" type="boolean" required="true"/>
+<apex:attribute name="confName" description="confName" type="string" required="true"/>
+<apex:attribute name="Urlx1" description="Urlx1" type="string" required="true"/>
+<apex:attribute name="isIe8" description="isIe8" type="boolean" required="false"/>
+
+
+<style>
+.pbBottomButtons{display:{!IF(maxRowsPerPage>=30,'block','none')};}
+</style>
+<script type="text/javascript">
+
+var search_box_help="{!$Label.search_box_help}";
+var Filter_box_help_Title="{!$Label.Filter_box_help_Title}";
+var Graphs_title_field_per_col="{!$Label.Graphs_title_field_per_col}";
+var Graphs_title_count_txt="{!$Label.Graphs_title_count_txt}";
+var Total_text="{!$Label.Total_text}";
+var Blanks_txt="{!$Label.Blanks_txt}";
+var NOT_isEditOL={!NOT(isEditOL)};
+var Urlx1="{!Urlx1}";
+var chatter_feed_title="{!$Label.chatter_feed}";
+var credential = '{!GETSESSIONID()}'; // native VF function
+var __sfdcSessionId = '{!GETSESSIONID()}';
+var ZP_api_sessionid = "{!$Api.Session_ID}";
+var EntitySubscription_SubscriberId="{!$User.Id}"
+</script>
+
+ 
+</apex:component>

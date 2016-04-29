@@ -1,0 +1,140 @@
+/*
+ *  NOTE - This is a utility class for the pagination.
+ *  @author - Suhas
+ *  Date - 01/07/2015
+ */
+
+public virtual with sharing class PaginationClass {
+
+    //Inputs to be given to the class
+    //Stores list of sObject records provided as input for pagination
+    public List<sObject> lstInputsObject ;
+
+    //Stores number of records to be displayed per page
+    public integer pageSize;
+
+    //Stores last page number and current page number respecively
+    public integer lastPageNumber,pageNumber, lastRowCounter;
+
+    //Stores paginated records with page number as key and records for that page as value
+    public map<integer,List<recordWrapper>> mapPageNumberRecordList = new map<integer,List<recordWrapper>>();
+
+    //Constructor
+    public PaginationClass(){
+        lstInputsObject = new List<sObject>();
+    }   
+
+	
+   /* public List<recordWrapper> getPaginatedRecords1( List<sObject> inputList) {
+        lstInputsObject = inputList;
+        List<recordWrapper> lstTempRecords = new List<recordWrapper>() ;
+        integer pageNo = 0;
+        integer rowCounter = 0;
+        for(sObject record: lstInputsObject){
+            if(pageSize == null || pageSize == 0){
+                pageSize = 10;
+            }
+            if(Math.mod(lstTempRecords.size(),pageSize) == 0 ){
+                pageNo += 1 ;
+                lstTempRecords = new List<recordWrapper>();
+            }
+            rowCounter += 1;
+            lstTempRecords.add(new recordWrapper(record,rowCounter));
+            mapPageNumberRecordList.put(pageNo,lstTempRecords);            
+        }
+        lastRowCounter = rowCounter;
+        lastPageNumber = pageNo;
+        if(pageNumber == null || pageNumber == 0) pageNumber =1;   
+
+        return mapPageNumberRecordList.get(pageNumber);
+    }*/
+    
+    //Method to paginate records and return list of records of first page
+    public List<recordWrapper> getPaginatedRecords( List<sObject> inputList) {
+    	return populateMap(getWrappedList(inputList));
+    }    
+    
+    //Method to wrap the sObject list
+    public List<recordWrapper> getWrappedList(List<sObject> inputList){
+        
+        List<recordWrapper> lstWrappedRecords = new List<recordWrapper>() ;
+		integer rowCounter = 0;
+        for(sObject record: inputList){
+            rowCounter += 1;
+            lstWrappedRecords.add(new recordWrapper(record,rowCounter));
+        }
+        lastRowCounter = rowCounter;   
+        
+        return lstWrappedRecords;  
+    }
+    
+    //Method to populate the map according to pageSize
+    public List<recordWrapper> populateMap( List<recordWrapper> wrapperList) {
+
+        List<recordWrapper> lstTempRecords = new List<recordWrapper>() ;
+        integer pageNo = 0;
+
+        for(recordWrapper record: wrapperList){
+            if(pageSize == null || pageSize == 0){
+                pageSize = 10;
+            }
+            if(Math.mod(lstTempRecords.size(),pageSize) == 0 ){
+                pageNo += 1 ;
+                lstTempRecords = new List<recordWrapper>();
+            }
+
+            lstTempRecords.add(record);
+            mapPageNumberRecordList.put(pageNo,lstTempRecords);            
+        }
+
+        lastPageNumber = pageNo;
+        if(pageNumber == null || pageNumber == 0) pageNumber =1;   
+
+        return mapPageNumberRecordList.get(pageNumber);
+    }
+    
+    //Method to populate the map according to pageSize
+    public List<recordWrapper> refreshMap() {
+    	List<recordWrapper> lstAllRecordsList = new List<recordWrapper>();
+    	if(!mapPageNumberRecordList.isEmpty())
+    	for(List<recordWrapper> lstRecWrap : mapPageNumberRecordList.values()){
+    		lstAllRecordsList.addAll(lstRecWrap);
+    	}
+    	return populateMap(lstAllRecordsList);
+    }        
+
+    public List<recordWrapper> nextPage() {
+        if(pageNumber < lastPageNumber) pageNumber += 1;
+
+        return mapPageNumberRecordList.get(pageNumber);     
+    }
+
+    public List<recordWrapper> previousPage() {
+        if(pageNumber > 1) pageNumber -= 1;
+
+        return mapPageNumberRecordList.get(pageNumber);     
+    }
+
+    public List<recordWrapper> firstPage() {
+        pageNumber = 1;
+        return mapPageNumberRecordList.get(pageNumber);     
+    }
+
+    public List<recordWrapper> lastPage() {
+        pageNumber = lastPageNumber;
+        return mapPageNumberRecordList.get(lastPageNumber);     
+    }  
+
+    //Records inner class
+    public class RecordWrapper {
+        public Integer rowCounter { get; set; }
+        public boolean isSelected { get; set; }
+        public sObject record { get; set;}
+
+        public recordWrapper(sObject record, Integer rowCounter) {
+            this.record = record;
+            this.rowCounter = rowCounter; 
+            this.isSelected = false;
+        }       
+    }    
+}

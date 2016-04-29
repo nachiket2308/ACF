@@ -1,0 +1,1106 @@
+<apex:component controller="zaapit.zaapit_tables" allowdml="true" extensions="zaapit.JSZTableAction"> 
+
+<!--  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/themes/redmond/jquery-ui.css" type="text/css"/>-->
+<link rel="stylesheet" href="{!URLFOR($Resource.jqueryui_pck, '/jquery-ui-1.11.4.custom/jquery-ui.min.css')}" type="text/css"/>
+<link rel="stylesheet" href="{!URLFOR($Resource.zp_qtip, 'jquery.qtip.css')}" type="text/css"/>
+<link rel="stylesheet" href="../apex/zaapit__include_css?isIe8={!isIe8}" type="text/css"/>
+
+<!--  <link rel="stylesheet" href="{!URLFOR($Resource.zp_qtip, 'jquery.qtip.css')}"/>-->
+<style>.searchTxt.hd1,.hd1,.ost1X.hd1{display:none;}</style> 
+<div class="Zstbl1WS">
+<script type="text/javascript">
+var oldInitAll=null;
+try{
+oldInitAll=picklist.initAll;
+picklist.initAll=function(){};
+}catch(e){}
+var remoteTotMethod='{!$RemoteAction.JSZTableAction.calculateTotalSumsRMT}';
+var remoteQueryAjax2='{!$RemoteAction.JSZTableAction.queryAjax2}';
+var remotequeryAjax2CountFL='{!$RemoteAction.JSZTableAction.queryAjax2CountFL}';
+var remotesetFollowChatterSts='{!$RemoteAction.JSZTableAction.setFollowChatterSts}';
+var remotesetColumnWidth1='{!$RemoteAction.JSZTableAction.setColumnWidth1}'; 
+var remotequeryAjax2CountMPLX='{!$RemoteAction.JSZTableAction.queryAjax2CountMPLX}';
+var remotequeryAjax2GetIDS='{!$RemoteAction.JSZTableAction.queryAjax2GetIDS}';
+var remoteGetCustomLabel='{!$RemoteAction.JSZTableAction.getCustomLabel}';
+
+var orgDefCurrency="{!currencyDef}";
+var currencyDefISO="{!currencyDefISO}";
+var lastMassFunctionBtnCall=null;
+var topLeftFilterIMG="";
+
+</script>
+<script type="text/javascript" src="{!$Resource.zp_jquery172}"></script>
+ <script type="text/javascript" src="{!URLFOR($Resource.jqueryui_pck, '/jquery-ui-1.11.4.custom/jquery-ui.min.js')}"></script>
+ <!-- <script type="text/javascript" src="{!URLFOR($Resource.zp_qtip, 'jquery.qtip.js')}"/>-->
+ <script type="text/javascript" src="{!URLFOR($Resource.zp_qtip, 'jquery.qtip.js')}" async="async"/>
+ <script type="text/javascript" src="{!$Resource.zaapit_tb_top_js}"></script> 
+ 
+<script type="text/javascript" >
+
+var isSearchFocus1=true;
+var openPOInst=true;
+
+var Delete_this_view="{!$Label.Delete_this_view}";
+
+</script>
+<div style="display:{!IF(hasValidLic,'none','block')};width:100%;opacity:0.90;background:#FFFFFF;color:#666666;font-size:15pt;z-index:1500;position:absolute;top:0px;left:0px;height:100%;min-height:1000px;padding: 65px 10px 10px 10px;text-align:center;">You don't have a valid license for this table - contact <a href="mailto:sales@zaapit.com">sales@zaapit.com</a> to purchase a new license.  <br/><br/>OrgID: {!$Organization.Id}, Page: {!confName}</div>
+<div id="theIframeCont"></div> 
+
+    <apex:form id="pgblck" styleClass="mZPForm1">
+		<script>
+          try{
+          picklist.picklists=new Array();
+          }catch(e){}
+          </script>
+    <div class="{!IF(NOT(currConf.hideTopFilterSave__c),'','hd1')}">
+    <div class="topFilterSave">
+    
+ 
+    <table style="margin:5px;width: 99%;"><tr><td width="35">
+<span style="display:block;margin-top:-5px;"><img src="/s.gif" class="pageTitleIcon"/></span>
+</td>
+<td>
+    <div class="pd1">
+    <apex:selectList label="View" id="views1"  size="1" value="{!mainViewID}" styleClass="curSelectedView" onchange="if(!noticeUnsave()){return false;}else{loadingSH();fetchView1x($(this).val());}">
+        <apex:selectOption itemValue=" " itemLabel="{!title} {!$Label.Default_PD_txt}"/>
+        <apex:selectOptions value="{!availViews}"/> 
+        </apex:selectList>
+         <button class="actionBtnSF2" type="button" onclick="btnMenuSF1($('.btnBox3')[0]);return false;">
+                    <span class="ui-icon ui-icon ui-icon-copy"></span>
+         </button>
+                    
+                    <span class="btnBox3" onclick="btnMenuSF1(this);">
+                    <div class="close1W"><span class="close1">&nbsp;</span></div>
+        <apex:commandLink value="{!$Label.Save_View}" styleClass="btt1" onmouseover="fixTitlex2(this,false)" title="{!$Label.Save_the_current_table_txt}" onclick="saveView();return false;">
+        </apex:commandLink><span class="sp1">&nbsp;|&nbsp;&nbsp;</span><apex:commandLink value="{!$Label.Delete_view_link}" styleClass="btt1" onmouseover="fixTitlex2(this,false)" title="{!$Label.Delete_the_current_view}" onclick="deleteView(this);return false;">
+        </apex:commandLink><span class="sp1">&nbsp;|&nbsp;&nbsp;</span><apex:commandLink value="{!$Label.Save_as_New_View}" styleClass="btt1" onmouseover="fixTitlex2(this,false)" title="{!$Label.Save_the_current_table_save_new_view}" onclick="openSaveView();return false;">
+        </apex:commandLink><span class="{!IF(currConf.ShowRefreshLink__c,'','hd1')}"><span class="sp1">&nbsp;|&nbsp;&nbsp;</span><apex:commandLink value="{!$Label.Refresh_View}" styleClass="btt1" onmouseover="fixTitlex2(this,false)" title="{!$Label.Refresh_current_view}" onclick="loadingSH();self.location.reload();return false;"/></span>
+        
+         </span>
+        <div title="{!$Label.Save_View}" id="newViewForm" class="hd1" >
+        <p>
+            {!$Label.View_Name_DLG} <span style="margin-left:15px;"><input type="text" maxlength="30" id="newViewName" style="width:205px;" /></span>
+            </p>
+        </div>
+        <div class="ui-state-default ui-corner-all hd1" id="topSaved1" style="margin-left:150px;padding:7px;line-height:25px;display:none;">
+        <span class="ui-icon ui-icon-check" style="display:inline-block"></span> Saved
+        </div>
+        
+        
+        
+    </div>
+    </td>
+    <td align="right">
+    <div class="sectionHeaderEditLink" >
+    
+           <button class="actionBtnSF3" type="button" onclick="btnMenuSF1($('.btnBox4')[0]);return false;">
+                    <span class="gearOpts"></span>
+         </button>
+                    
+                    <span class="btnBox4" onclick="btnMenuSF1(this);">
+                    <div class="close1W"><span class="close1">&nbsp;</span></div>
+    
+    
+    
+    <apex:commandLink onclick="openCustomize();return false;" rendered="{!OR(showCutomizeLinkUserGS,AND(NOT(currConf.zaapit__hideCustomizeLink__c),OR($User.Enable_ZaapIT_s_View_Editor__c,$User.Enable_ZaapIT_s_Layout_Editor__c)))}" styleClass="btt1 helpLink helpELTL" title="{!$Label.edit_explain}" onmouseover="fixTitlex2(this,false,null,null,null,'1')">
+    <span class="t">{!$Label.Edit_Layout}</span>
+    
+    </apex:commandLink>
+    <span class="{!IF(OR(showCutomizeLinkUserGS,AND(NOT(currConf.hideCustomizeLink__c),OR($User.Enable_ZaapIT_s_View_Editor__c,$User.Enable_ZaapIT_s_Layout_Editor__c))),'','hd1')} sep1">&nbsp;|&nbsp;</span> 
+    
+    <a href="../apex/zaapit__zaapit_tb_swap_table" onclick="loadingSH();return navigateZP('../apex/zaapit__zaapit_tb_swap_table');" class="helpLink helpSWTBSFDC SWTBSFDC {!IF(currConf.hideChooseATableLink__c || (currConf.table_ref__c!=null && currConf.table_ref__c!=''),'hd1','')}" >
+    <span class="t ">{!$Label.Browse_Tables}</span>
+    </a>
+    <span class="{!IF(currConf.hideChooseATableLink__c || (currConf.table_ref__c!=null && currConf.table_ref__c!=''),'hd1','')} sep1 SWTBSFDC">&nbsp;|&nbsp;</span>
+    
+    <!-- styleClass="btt1 helpLink"  href="{!$Label.user_guide_link}" target="_blank" -->
+    <a href="javascript:void(0);" onmouseover="openQtip1Ajax(this,$(this).attr('alnk'),'top right','bottom left','1','1','1');" onclick="return false;"  alnk="{!if(currConf.tools_link__c!=null && currConf.tools_link__c!='',currConf.tools_link__c,'../apex/general_links')}" class="helpLink btt1 helpQMSFDC" >
+    <span class="t">{!$Label.Help_for_this_Page}</span>
+    </a>
+    </span>
+    </div>
+    </td>
+    </tr>
+       </table>
+     
+    <!--  <apex:sectionHeader > </apex:sectionHeader>-->
+    </div>
+   
+    </div>
+    
+    <style> 
+.textOver1{max-width:{!2000/fieldset.size}px;display:inline-block;max-height:14px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap; }
+
+html{!IF(mainId=='','.zp2dbbo','')},body{!IF(mainId=='','.zp2dbbo','.hasMotif')}{margin:0px;padding:0px;}
+body.sfdcBody .list{!IF(useSmallTableFont,'','.regularfontZP')} *{font-size:8pt;}
+#mainTBX1 .zen .zen-mediaExt .zen-mediaBody{display:none;}
+#mainTBX1 .zen .followUnfollowElement{display:inline-block;}
+#mainTBX1 .zen {display:inline-block;}
+
+#mainTBX1 tr.markedRowTA{background:yellow;}
+
+#mainTBX1{!IF(NOT(currConf.hideTotalsRow__c),'XXX','')} .list .totalRow td,#mainTBX1{!IF(NOT(currConf.hideTotalsRow__c),'XXX','')} .list .totalRow th{padding:0px;background:#F2F3F3;}
+#mainTBX1{!IF((currConf.hideTotalsRow__c),'XXX','')} .list .totalRow td,#mainTBX1{!IF((currConf.hideTotalsRow__c),'XXX','')} .list .totalRow th{background:#F2F3F3;border-top:1px solid #E0E3E5;}  
+
+.Error_Fields1 {!currePlacex1RedErrors}{border:2px solid red;display:block;} 
+span.chtrXG{display:{!IF(currConf.hide_chatter__c,'none','inline-block')};width: 25px;position: relative;height: 12px;}
+span.act1XG{display:{!IF(OR(currConf.More_Actions_Link__c=='',currConf.More_Actions_Link__c == null),'none','inline-block')};width: 25px;position: relative;}
+span.act1XLNK{display:{!IF(customActionLinkNEP,'inline-block','none')};}
+{!IF($CurrentPage.parameters.zptabhs='1','.Zstbl1{overflow-x: auto;overflow-y: auto;padding-bottom:20px}','')}
+{!if(isIe8,'','@media screen and (min-width: 721px){')}
+{!IF(currConf.EnableHorizontalScroll__c==true,'#mainTBX1>span{min-width:1200px;display:block;} #mainTBX1{overflow-x:scroll;}','')}
+{!if(isIe8,'','}')}
+#topGraphs{}
+{!currConf.Custom_CSS__c}
+</style>
+ <script>
+  var currePlacex1RedErrors="{!currePlacex1RedErrors}";
+  //alert(currePlacex1RedErrors);
+ </script>
+                
+<div id="postinstMsg" style="display:none;z-index:5;position:fixed;left:0px;width:100%;bottom:0px;height:55px;background:#e5e5e5;opacity:0.9;-moz-opacity:0.9;">
+<div style="text-align:center;margin-top:10px;">
+<a target="_blank" href="http://www.zaapit.com/page/smart_tables" style="color:#0000FF;font-size:11pt;font-weight:bold;">
+Visit Zaapit.com and learn how to configure &amp; customize the Smart-Related-Grids.<br/>The Smart-Tables product user guide is on the right side under "helpful links".
+</a>
+<a class="btn" style="padding:3px;margin-left:10px;" href="javascript:void(0);" onclick="$('#postinstMsg').hide();">Close</a>
+</div>
+</div><div id="topGraphs"><div class="pr"><div class="SaveAlert1 hd1 ui-state-highlight ui-corner-all"> {!$Label.Save_the_View_to_keep_the_current_charts_on_top} </div></div><div class="hd1"><apex:inputText styleClass="topChartsFields" value="{!topChartsFields}"/></div></div>
+<script type="text/javascript">
+
+var isSF1XV=null;
+function isSF1X(){
+if(isSF1XV==null){
+	var res=false;
+	try{
+	    res=(typeof sforce != 'undefined') && sforce!=null && sforce.one!=null;
+	    isSF1XV=res;
+	}catch(e){
+	}
+}
+return isSF1XV;
+}
+
+     var isSF1P=isSF1X();
+     if(isSF1P){
+        try{
+            document.getElementsByTagName("body")[0].className=document.getElementsByTagName("body")[0].className+" sf1";
+        }catch(e1){}
+        //$("body").addClass("sf1");
+     }
+   
+   //LC.labels["Tab"]["MoreTabsMenuClosedAssistiveText"]="";
+   var Open_TextArea_in_a_dialog__c={!currConf.Open_TextArea_in_a_dialog__c}
+    var OK_buttons="{!$Label.OK_buttons}";
+    var Cancel_button="{!$Label.Cancel_button}";
+  var mainID="{!mainId}";
+  var UrlEnd1="{!UrlEnd1}";
+   var sfdcTabNameParam=(isSF1X()?"":"{!sfdcTabNameParam}");
+
+
+var uscszrptga1="1";
+
+
+var hasSFDCURL={!IF($Label.Salesforce_Full_URL!='-','true','false')};
+var Salesforce_Full_URL="{!$Label.Salesforce_Full_URL}";
+
+   
+   var totalCountAjx=0;    
+   var queryCOunt1="{!JSENCODE(remoteQuery1)}";
+   var currPageCls=Number("{!currPage}");
+   var showEntries="{!IF(viewRowCount>0,TEXT(maxRowsPerPage*(currPage)+1)+'-'+TEXT(maxRowsPerPage*(currPage)+viewRowCount)+' ','')}";
+   var maxRowsPerPageCls=Number("{!maxRowsPerPage}");
+   var maxPageOfsetGlb=10000;
+      var maxRowToExport={!IF(currConf.maxRowToExport__c==null,10000,currConf.maxRowToExport__c)};
+      var export_to_url="{!currConf.export_to_url__c}";
+  var NOT_hideTotalsRow={!NOT(currConf.hideTotalsRow__c)};
+   var Found_x_results="{!$Label.Found_x_results}";
+   var Page_x_of_y_ORIG="{!$Label.Page_x_of_y}";
+   var of_entries="{!$Label.of_entries}";
+   var Mass_Update_all_items="{!$Label.Mass_Update_all_items}";
+var DBsubQery="";
+try{
+DBsubQery="{!JSENCODE(queryx1FROM)}";
+}catch(e){};
+  
+var DB_END_ALLROWS_Qery="{!IF(currConf.Show_All_Rows_in_query__c,' ALL ROWS ','')}"; 
+var hide_multi_value_filters__c={!currConf.hide_multi_value_filters__c};    
+var NOT_Disable_formula_fields_groupings__c={!NOT(currConf.Disable_formula_fields_groupings__c)};
+var limitFORIG="{!currConf.Max_rows_for_formula_grouping__c}";
+var Select_All="{!$Label.Select_All}";   
+var dateFormatPatrenORIG="{!$Label.Date_Format_Filter_Pattern}";
+var Showing_first_X_rows="{!$Label.Showing_first_X_rows}";
+var NOT_Disable_formula_fields_groupings__c={!NOT(currConf.Disable_formula_fields_groupings__c)};
+var Min_title="{!$Label.Min_title}";
+var Max_Title="{!$Label.Max_Title}";
+var NOT_Hide_graph_link_on_filter__c=("{!NOT(currConf.Hide_graph_link_on_filter__c)}"=="true");
+var Amount_field_For_Graphs__c="{!currConf.Amount_field_For_Graphs__c}";
+var amountFieldName="{!amountFieldName}"; 
+var NOT_DisableGeoMaps__c="{!NOT(currConf.DisableGeoMaps__c)}";
+var Instant_Graph="{!$Label.Instant_Graph}";
+var Cancel_filter_button="{!$Label.Cancel_filter_button}";
+var filter_ex_Btn="{!$Label.filter_ex_Btn}";
+var unavailable_page="{!$Label.unavailable_page}";
+var Save_File_button="{!$Label.Save_File_button}";
+var Cancel_button="{!$Label.Cancel_button}";
+var fileq="{!JSENCODE(queryx1Main)}";  
+var loadfilter_maxResRows="{!currConf.loadfilter_maxResRows__c}";
+var sortByFieldforColor="{!IF(currConf.Enable_Sort_coloring__c || currConf.Enable_Sort_grouping__c,sortBy,'')}";
+var Enable_Sort_coloring={!IF(currConf.Enable_Sort_coloring__c,true,false)};
+var Enable_Sort_grouping={!IF(currConf.Enable_Sort_grouping__c,true,false)}; 
+var parentLocParam1="{!parentWinLoc}";
+var mainIDForURL="{!mainID}"
+var fixCommuniZPD1Bool="{!$Label.fixCommuniZPD1}";
+var Show_Hover_Preview_On_Name_Field="{!currConf.Show_Hover_Preview_On_Name_Field__c}";
+var moreAction_title="{!$Label.more_actions}";
+var moreAction_Link="{!currConf.More_Actions_Link__c}";
+var moreAction_windowWidth={!if(currConf.More_Actions_win_width__c==null,'null','"'+text(currConf.More_Actions_win_width__c)+'"')};
+var currConf_name="{!currConf.name}";
+var saveWorkBeforeNewRow="{!$Label.adding_a_new_row_message}";
+var turnOnscrolModeForTabsRL={!IF(currConf.turnOnScrollModeForRLNTabs__c!=null && currConf.turnOnScrollModeForRLNTabs__c,1,0)};
+var EnableHorizontalScroll={!IF(currConf.EnableHorizontalScroll__c,1,0)};
+var mainViewID="{!mainViewID}";
+markCheckedRows={!markCheckedRows};
+isEditMode1={!isEditOL};
+var FilterReplaceLabelName="{!IF(currConf.FilterReplaceLabelName__c==null && currConf.FilterReplaceLabelName__c!=''&& currConf.FilterReplaceLabelName__c!=' ','',$label[currConf.FilterReplaceLabelName__c])}";
+var Preview_not_Available="{!$Label.Preview_not_Available}";
+var View_Download="{!$Label.View_Download}";
+var NOT_hideEditButton="{!AND(NOT(isEditOL),NOT(currConf.hideEditButton__c))}";
+var Refresh_Chart="{!$Label.Refresh_Chart}";
+var Pin_Chart="{!$Label.Pin_Chart}";
+var labelForObj="{!$ObjectType[tableX1].label}";
+var Please_select_at_least_one_row="{!$Label.Please_select_at_least_one_row}";
+var NumberOfNewRows="{!currConf.NumberOfNewRows__c}";
+var massUpdateProgTexts="{!$Label.massUpdateProgTexts}";
+var No_Chart_Data="{!$Label.No_Chart_Data}";
+var mass_update_0_rows="{!$Label.mass_update_0_rows}";
+var tp_conf="{!tp_conf}";
+var isIe8="{!isIe8}";
+var mainViewIDTemp="{!mainViewIDTemp}";
+var returnFocus="{!returnFocus}";
+var viewRowCount={!viewRowCount};
+var Label_View_Row="{!$Label.View_Row}";
+try{
+	if(Show_Hover_Preview_On_Name_Field=="true"){
+	LookupHoverDetail.getHover=function(x){
+		return $("<span/>");
+	};
+	}
+}catch(e){}
+</script>
+        <c:zaapit_tb_top maxRowsPerPage="{!maxRowsPerPage}" 
+            isEditOL="{!isEditOL}" confName="{!confName}" Urlx1="{!Urlx1}" isIe8="{!isIe8}"/> 
+            
+            <script type="text/javascript">
+function setFocusOnLoad() {}//mockachino!
+function srcUp(href1){
+	//alert(href1);
+	var h2=href1;
+	h2=unescape(h2);
+	if( h2.indexOf("?isdtp=vw")>-1){
+		h2=h2.substring(0,h2.indexOf("?isdtp=vw"));
+	}
+	navigateZP(h2,window.top);
+}
+// $(document).ready(function(){
+  // try{
+   //LC.getLabelWithArray=function(a){};
+   //LC.labels["Tab"]=["MoreTabsMenuClosedAssistiveText":""];
+   //LC.labels["Global"]=["loading":""];
+ //  }catch(ee){}
+ //  });
+ 
+</script> 
+<script type="text/javascript">
+
+var LastOpenToolTipObj=null;
+                
+     $(document).ready(ready4ZP);
+   var curBbt1ID=10;
+//var currePlacex1RedErrors="{!currePlacex1RedErrors}";;
+
+            </script>
+<div id="exportDialog1" title="{!$Label.Export_to_File}" class="hd1">
+<p><span class="ui-icon ui-icon-info" style="float: left; margin: 2px 7px 20px 0px;"></span> {!$Label.Save_file_as}
+<select id="fileTypePD">
+<apex:outputText value="{!exportMenu}" escape="false"/>
+</select>
+</p>
+<div style="color:#666666;font-size:8pt;float:left;" id="showLimitExport">{!$Label.Export_Gray_Message}
+</div>
+</div>
+        <div class="Zstbl1">
+            <apex:pageBlock title="{!title}" >
+               
+                <apex:pageBlockButtons id="butSec" styleClass="btnicoflt" location="top">
+                
+                    <div style="float: right; height: 20px; display: inline-block;overflow:visible;padding:0px 18px 0px 0px;position:relative;" class="seatchInptFZPW2"> <span style="position: relative;display:inline-block;" class="seatchInptFZPW"><span class="searchTxt {!IF(searchSTR!='','hd1','')}" style="top:2px" onclick="clickSearchTxt(this);stopProp1(event);">{!$Label.Search_label}</span><apex:inputText onclick="stopProp1(event);" onkeydown="if (event!=null && event.keyCode===13){return false;}" value="{!searchSTR}"
+                            style="height:16px;" styleClass="seatchInptFZP" title="{!$Label.search_box_help}" onmouseover="fixTitlex2(this);"/><span onclick="$('.seatchInptFZP').val('');searchChanged(1);" class="filterinoIPTCS1 ui-icon-circle-closeZP"></span></span><a href="javascript:void(0);" onclick="searchChanged(1);" class="searchMGGlss1" >&nbsp;</a>
+                    </div>
+
+                <button class="actionBtnSF1" type="button" onclick="btnMenuSF1($('.btnBox2')[0]);return false;">
+                    <span class="ui-icon ui-icon-circle-triangle-s"></span>
+                    </button>
+                    
+                    <span class="btnBox">             
+                           
+                    <span class="{!IF(showRegButtons,'','hd1')} btnBox1">
+                        <span class="btnsSV"> <apex:commandButton value="{!$Label.New_button}"
+                                    action="{!newRow}" rendered="false" reRender="pgblck"
+                                    />
+                                    <apex:commandButton value="{!$Label.Save_Ignore_Errors_Button}" onclick="saveIgnoreErrors();return false;"
+                                     rendered="{!AND(isEditOL,NOT(ISBLANK(currePlacex1RedErrors)))}" 
+                                     style="border:2px solid red;" /> 
+                                     <apex:commandButton value="{!$Label.Save_button}" onclick="loadingSH();"
+                                    action="{!save}" rendered="{!isEditOL}" reRender="pgblck"
+                                     /> 
+                                    <apex:commandButton value="{!$Label.Cancel_button}" immediate="true" reRender="pgblck"
+                                    action="{!cancel}" rendered="{!isEditOL}"  onclick="if(!noticeUnsave()){return false;}else{loadingSH();}"
+                                    oncomplete="$('.lcbXAll').prop('checked',false);" styleClass="cancelBtn1"/> <span id="mUnsv"> <span class="unSVNum"></span> {!$Label.Changed_Row_s}</span>
+                                    
+                        </span> 
+                        </span>
+                      <span class="btnBox2" onclick="btnMenuSF1(this);">
+                    <div class="close1W"><span class="close1">&nbsp;</span></div>
+                    <span class="{!IF(showRegButtons,'','hd1')}">
+                      
+                      
+                        <apex:commandButton value="{!IF(isEditOL,$Label.view_button,$Label.edit_button)}"
+                                onclick="loadingSH();filpEditModeJS();return false;"
+                                rendered="{!AND(objUpdateable,NOT(isEditOL),NOT(currConf.zaapit__hideEditButton__c))}" >
+                            </apex:commandButton>
+                            
+                             <apex:commandButton rendered="{!AND(objCreateable, newlink!='',NOT(currConf.zaapit__hideNewAndDelete__c))}" value="{!$Label.New_button}"
+                                onclick="newObjZP('{!tableX1}','{!newlink}',top);return false;">
+                            </apex:commandButton>
+                            
+                            <span class="btnBoxMoreAct">
+                            <apex:commandButton value="{!$Label.Mass_Update}"
+                                     rendered="{!objUpdateable && OR(isEditOL,currConf.Show_Mass_Updae_on_view_mode__c) }"
+                                    onclick="openMassUpdate();return false;" />
+                            
+                            <apex:commandButton value="{!$Label.Mass_Duplicate}"
+                                     rendered="{!objUpdateable && objCreateable&& currConf.zaapit__showMassDuplicate__c}"
+                                    onclick="openMassUpdate(2);return false;" />
+                                    
+                            
+                            <apex:commandButton value="{!$Label.add_row_button}"  onclick="preAddRow(); return false;"
+                                    rendered="{!AND(objCreateable, isEditOL,newlink=='',NOT(currConf.zaapit__hideAddRow__c))}"  />
+                            
+                            <apex:commandButton value="{!$Label.Delete_button}"
+                                    action="{!delete1}" rendered="{!objDeletable&& OR(currConf.zaapit__showDeleteSelectedViewMode__c,AND(isEditOL,NOT(currConf.zaapit__hideNewAndDelete__c)))}" reRender="pgblck"
+                                     onclick="var c1=$('.lcbX input:checked').size();if(c1==0){alert('Please select at least one row.');return false;}else if(!confirm('Are you sure you want to delete the selected rows ('+c1+')?')){return false;}else{loadingSH();}" />
+                                    
+                            <apex:commandButton value="{!$Label.Delete_All}"
+                                    action="{!massDeleteALLRows}" rendered="{!objDeletable && currConf.zaapit__showMassDeleteAll__c}" reRender="pgblck"
+                                     onclick=" if(!confirm('Are you sure you want to DELETE ALL the rows ('+totRowsForFOUNDONQ+')?\n\nPlease note that the filters and search will remain the same after the deletion is completed.\nMeaning, you will see 0 results on this page.')|| !confirm('Are you sure?\n\nThis is the second and last confirm for Delete ALL!')){return false;}else{loadingSH();}" />
+                             
+     
+                            </span>        
+                                    
+                            </span> 
+
+                            <span class="btnBoxMoreAct2">
+                            <apex:repeat value="{!jsButtons}" var="bts">
+                            <script  type="text/javascript" defer="defer">
+                            
+                            function run{!bts[2]}(callerObj){
+                                {!bts[1]}
+                            }
+                            
+                            </script>
+                                <button type="button" class="btn" onclick="return run{!bts[2]}(this);" >
+                                     <apex:outputtext value="{!bts[0]}"/>
+                                </button>
+                            </apex:repeat>
+                            
+                            <apex:commandButton value="{!$Label.export_button}" 
+                                    rendered="{!AND(NOT(isEditOL),isShowExport)}" onclick="openExportWindow();return false;"  />  
+                            
+                            <apex:commandLink value="{!$Label.Customize_link}" onclick="openCustomize();return false;" style="color:#333369;margin-left:5px;" rendered="{!OR(showCutomizeLinkUserGS,AND(NOT(currConf.zaapit__hideCustomizeLink__c),OR($User.Enable_ZaapIT_s_View_Editor__c,$User.Enable_ZaapIT_s_Layout_Editor__c)))}" styleClass="btt1 {!IF(NOT(currConf.zaapit__hideTopFilterSave__c),'hd1','')}" onmouseover="fixTitlex2(this,false)" title="{!$Label.edit_explain}"/>
+                            
+                            <apex:commandLink value="{!$Label.User_Guide}" onclick="window.open('{!$Label.user_guide_link}','_blank');return false;" style="color:#333369;margin-left:10px;" rendered="{!currConf.zaapit__showUserGuideLink__c}"/>
+                            </span>
+                            </span> 
+                                    <script  type="text/javascript" >
+                                    
+                                    var lastBodyHeight=null;
+                                    function openCustomize(){
+                                    stopResizing=0;
+                                    if('{!$User.Enable_ZaapIT_s_View_Editor__c}'=='false' && '{!$User.Enable_ZaapIT_s_Layout_Editor__c}'=='false'){
+                                        alert("Please contact your System-Administrator to customize this table.\n\nAdmin - To grant access you need to:\n 1.\"Mark\" the \"Enable ZaapIT\'s Layout Editor\" / \"Enable ZaapIT\'s View Editor\" checkbox under User Information.\n2. For new users - change the ZaapIT's Classes & Pages security setting.");
+                                        return false;
+                                    }
+                                    if(false && isSF1()){
+                                        var editlnk=((self.location+'').split('?')[0]);
+                                        if(confirm("This link is not available in Salesforce1.\n\nTo customize this page make this mobile-tab visible on your desktop-Salesforce or go to "+editlnk+" and hit the customize link.\n\n Do you want to send the above link to your email (to open it on your desktop)?")){
+                                            window.top.location="mailto:{!$User.Email}?subject=Edit Mobile Tab&body="+escape(editlnk);
+                                        }
+                                        return false;
+                                    }
+                                    //alert();
+                                   // $( "#massUpdate" ).dialog();
+                                   var isIfrm= (top != self && parent.frames.length > 0);
+                                   var maxHieghtIframe=750;
+                                   if($(window).height()<maxHieghtIframe || $("html,body").height()<maxHieghtIframe){
+                                       if(!isIfrm){
+                                            maxHieghtIframe=$(window).height();
+                                            //alert(maxHieghtIframe);
+                                       }else if(isIfrm ){
+                                            lastBodyHeight=$("html,body").height();
+                                            if(isSF1()){
+                                                maxHieghtIframe=Math.min((maxHieghtIframe-40),$(window).height())
+                                            }
+                                            //alert(lastBodyHeight);
+                                            $("html,body").height(maxHieghtIframe);
+                                            fixIfmHegt();
+                                       } 
+                                   }
+                                   var addDDots="";
+                                   var currLoc1=(self.location+"/");
+                                    if(currLoc1.indexOf("/servlet/")>-1){
+                                        addDDots="../";
+                                    }else if(currLoc1.indexOf("/apex/")==-1){
+                                        addDDots="";
+                                    } 
+                                    $("#customizeViewx1").html("<iframe width='99%' height='99%' border='0' src='"+addDDots+"apex/zaapit__zp_table_edit?id={!currConf.id}&vid="+escape($(".curSelectedView").val())+"&tb1={!UrlEnd1}&tp={!tp_conf}&ourl="+escape("{!urlStart1}")+"' style='border:0px;' frameborder='0'/>");
+                                    $("#customizeViewx1 ifame").css("border","0px");
+                                    //$("#customizeViewx1").dialog('destroy');
+                                        
+                                     $("#customizeViewx1").dialog({
+                                      height: maxHieghtIframe,
+                                      width: Math.min(750,$(window).width()-10),
+                                      modal: openDialogAsMod()
+                                    //  ,buttons: {
+                                     // Close: function() {
+                                      //  $( this ).dialog( "close" );
+                                        //fixIfmHegt();
+                                     // }
+                                     // }
+                                      ,close: function( event, ui ) {
+                                        
+                                         if(lastBodyHeight!=null){
+                                                $("html,body").height(lastBodyHeight);
+                                                stopResizing=0;
+                                                fixIfmHegt();
+                                         }
+                                      }
+                                       
+                                      });   
+                                                            
+                                             
+                                     
+                                    }
+                                    var tbs1='{!timeStamptbs1}';
+                                    
+                                    function sortTbDfrnc(sortBy,sortDir,event){
+                                        tbs1=new Date().getTime();
+                                        //tbs1++;
+                                        sortTB(sortBy,sortDir);
+                                        loadingSH();
+                                    }
+                                    
+                                    function clickVisFilerBtn(){
+                                        $('.filterBtnExcelStl:visible:first').click();
+                                    }
+                                    
+                                    </script>
+                    </span>
+                    
+                    
+                    <span class="fieldFilterUIZPW">
+                    <apex:inputText value="{!fieldFilterUI}" styleClass="hd1 fieldFilterUIZP" onclick="$('.seatchInptFZP:first').keyup();"/>
+                    </span>
+                    
+                    
+                </apex:pageBlockButtons>
+                
+                <div id="columnScrollW1">
+                    <!-- <span class="th" title="{!$Label.Columns}">{!$Label.Columns}</span> -->
+                    <div class="btn1 l btt1L" type="button" onmouseover="fixTitlex2(this,false,'L')" onclick="columnSwitch(-1);stopProp1(event);" title="{!$Label.Previous_Column}">&nbsp;</div>
+                    <div class="btn1 r btt1L" type="button" onmouseover="fixTitlex2(this,false,'L')" onclick="columnSwitch(1);stopProp1(event);" title="{!$Label.Next_Column}">&nbsp;</div>
+                    </div>
+                
+                <apex:pageMessages id="mainTB1Err"/>
+                
+                
+                <div id="loadingx1Anchor"><div id="loadingx1" class="hd1"></div></div>
+                
+               
+                <apex:variable var="quoteChar" value="'" />         
+
+                <div id="mainTBX1">
+                
+                <apex:outputPanel id="mainTB1" styleClass="mainTB1">
+               
+                <table width="100%" border="0" cellpadding="3" cellspacing="0" class="list">
+                <thead class="rich-table-thead">
+                <tr class="headerRow">
+                <th width="26" class="{!IF(isEditOL||showCheckBoxes,'','hd1') } CBL">
+                <apex:inputCheckbox value="{!allCB}" onclick="cbAll(this);" styleClass="lcbXAll"/>
+                </th>
+                <th width="58" style="{!IF(AND(NOT(isEditOL),NOT(currConf.hideEditDelColumn__c)),'','display:none;') }" class="actL">
+               <div class="relative1"> <a title="{!$Label.add_row_button}"  onclick="preAddRow(); return false;" href="javascript:void(0);" onmouseover="preAddRowBublein(this);"
+                                    class="newRowA {!IF(showAddRowV,'','hd1')}"  >&nbsp;</a>
+                <span>{!$Label.Action}</span>
+                </div>
+                </th>
+                <apex:repeat value="{!fieldset}" var="tf">
+                <apex:variable var="flNameCLean" value="{!SUBSTITUTE(tf,'.','-')}" />
+                <th class="thw {!flNameCLean}">
+                <span class="thw {!flNameCLean}">
+                 <a href="javascript:void(0);" onclick="if(filterClicked || {!OR(filterObjShow[tf]=='x',filterObjShow[tf]=='9',filterObjShow[tf]=='9f',filterObjShow[tf]=='11',filterObjShow[tf]=='11f')}){return false;}if(!noticeUnsave()){return false;};sortTbDfrnc('{!tf}','{!IF(sortBy!=tf,sortDirOrig,IF(AND(sortBy==tf,sortDir!='asc'),'asc','desc'))}',event);return false;"
+                                        class=" srt inpTS{!flNameCLean}">
+                                        <span class="thTxtzp" onmouseover="fixTitlex1(this ,'n');"><apex:outputtext value="{!fieldsHeaders[tf]}"/></span>
+                                        <span class="srtx1 {!IF(sortBy==tf,IF(sortDir='asc','srtU','srtD'),'')} {!IF(sortBy2==tf,IF(sortDir2='asc','srtU','srtD'),'')} {!IF(sortBy3==tf,IF(sortDir3='asc','srtU','srtD'),'')}">&nbsp;</span>
+                                        <span class="fltIC{!flNameCLean} {!IF(AND(currConf.Show_column_filter__c==true,OR(filterObjShow[tf]=='1',filterObjShow[tf]=='1f',filterObjShow[tf]=='10',filterObjShow[tf]=='10f',filterObjShow[tf]=='2',filterObjShow[tf]=='3',filterObjShow[tf]=='35',filterObjShow[tf]=='3f',filterObjShow[tf]=='35f',filterObjShow[tf]=='4',filterObjShow[tf]=='8',filterObjShow[tf]=='5',filterObjShow[tf]=='6',filterObjShow[tf]=='7',filterObjShow[tf]=='7f',filterObjShow[tf]=='11')),'','hd1')} fltIC {!IF(filterObj[tf]==' ','sts0','sts1')}" onclick="filterClicked=true;return openCFilter(this,'fl{!flNameCLean}','{!tf}','inpf{!flNameCLean}','{!filterObjShow[tf]}','{!SUBSTITUTE(fieldsHeaders[tf],quoteChar,' ')}',event); " grus="createGarphsDataFilter('{!tf}','fl{!flNameCLean}','inpf{!flNameCLean}','{!filterObjShow[tf]}',Amount_field_For_Graphs__c,amountFieldName,'{!SUBSTITUTE(fieldsHeaders[tf],quoteChar,' ')}',200,NOT_DisableGeoMaps__c,null,null,'1');" id="flx_{!flNameCLean}">&nbsp;</span>
+                  
+                  </a> 
+                  <span class="wd1" onmousedown="resizeColSr(this);" fld="{!flNameCLean}" unselectable="on">&nbsp;</span>
+                  </span>                      
+                </th>
+                </apex:repeat>
+                </tr>
+                </thead>
+                <tbody>
+                
+                <apex:repeat value="{!tableData}" var="tx" rendered="{!NOT(isEditOL)}"
+                ><tr class="dataRow {!tx.TXTCSS1TR}" ondblclick="inlineEdiZP(this,event);">
+                <td style="{!IF(showCheckBoxes,'','display:none;') } " class="CBL" ondblclick="stopProp1(event);">
+                 <span class="lcbX" rid="{!tx.o['id']}"> <apex:inputCheckbox value="{!tx.checked}" onclick="cbAllV(this);" styleClass="lcbXRow RID{!tx.o['id']}"/></span></td>
+                <td nowrap="nowrap" style="{!IF(NOT(currConf.hideEditDelColumn__c),'','display:none;font-size:8pt;') }" class="actL" ondblclick="stopProp1(event);">
+                 <div class='ac1'>
+                   <a href="../{!tx.o['id']}/e?retURL={!currentURL}" class="actionLink {!IF(objUpdateable,'','hd1')}" onclick="if(event==null || !event.ctrlKey){editRowZP('{!tx.o['id']}','{!currentURL}',top);return false;}">{!$Label.edit_link}</a><span class="actSp1 {!IF( objUpdateable,'','hd1')}">|</span><a href="javascript:void(0);" class="actionLink {!IF( objDeletable,'','hd1')}" onclick="if( confirm('{!$Label.are_you_sure}')){loadingSH(); deleteOneRowFunc('{!tx.o['id']}');}" >{!$Label.delete_link}</a><span class="act1XLNK"><span class="actSp1">|</span>
+                       <a href="{!SUBSTITUTE(customActionLink[1],'{0}',tx.o['id'])}" class="actionLink" onclick="{!SUBSTITUTE(customActionLink[3],'{0}',tx.o['id'])}" title="{!customActionLink[2]}">{!customActionLink[0]}</a>
+                       </span><span class="chtrXG"><span class="actSp1 {!IF( objDeletable,'','hd1')}">|</span>
+                       <span class="chtr1"><span class="chtrW1{!tx.chaterSubscribe} chtrW1" onclick="chtrinos1('{!tx.o['id']}',this);" onmouseover="octrF1O(this,true);" onmouseout="octrF1O(this,true);" ></span><div class="OF1 ui-tooltip"  >{!$Label.follow_chatter}<br/><a class="OF1FICO" onclick="octrF1('{!tx.o['id']}',this)" title="{!$Label.show_feed}">{!$Label.chatter_feed}</a></div>
+                       </span></span><span class="act1XG"><span class="actSp1">|</span>
+                       <span class="actW1" onclick="omActF1('{!tx.o['id']}',this);" title="{!$Label.more_actions}"></span></span></div> 
+                </td>
+                <apex:repeat value="{!fieldset}" var="tf">
+                <apex:variable var="flNameCLean" value="{!SUBSTITUTE(tf,'.','-')}"/>
+                <td class="{!flNameCLean}" fld="{!tf}"><apex:variable var="customLinksOnReadMode_tf" value="{!customLinksOnReadMode[tf]}" 
+                /><apex:variable var="filterObjShow_tf" value="{!filterObjShow[tf]}" 
+                /><span class="ost1X oSt_{!flNameCLean} {!IF(OR(filterObjShow_tf=='9',filterObjShow_tf=='9f'),'textOver1','')}" onmouseover="fixTitlex1(this);">
+                 <apex:variable var="customAjaxLinksOnReadMode_tf" value="{!customAjaxLinksOnReadMode[tf]}" 
+                 /><apex:variable var="TXTCSS1" value="{!IF(AND(currConf.zaapit__EnableFieldValueCss__c,OR(filterObjShow[tf]=='1',filterObjShow[tf]=='1f')),IF(ISBLANK(tx.o[tf]),'blank',SUBSTITUTE(tx.o[tf],' ','_')),'')}" />
+                   <span class="{!IF(customLinksOnReadMode_tf=='empty','','hd1')} ost1I {!TXTCSS1}">
+                    <apex:outputField value="{!tx.o[tf]}" rendered="{!customLinksOnReadMode_tf=='empty' && filterObjShow_tf!='x' && tx.o[tf]!=null}" /><apex:outputtext value="{!tx.extraFields[tf]}" rendered="{!customLinksOnReadMode_tf=='empty' && (filterObjShow_tf=='x')}"
+                    /></span>
+                       <apex:variable var="tx_o_customLinksOnReadMode_tf" value="{!IF(filterObjShow_tf!='x' && NOT(customLinksOnReadMode_tf='empty'),tx.o[customLinksOnReadMode_tf],'')}" /
+                       ><apex:variable var="tx_o_customLinksA" value="{!IF(contains(customAjaxLinksOnReadMode_tf,'{1}'),SUBSTITUTE(customAjaxLinksOnReadMode_tf,'{1}',tx_o_customLinksOnReadMode_tf),'../'+tx_o_customLinksOnReadMode_tf)}" 
+                       /><a class="{!IF(filterObjShow_tf!='x' && NOT(customLinksOnReadMode_tf='empty'),'','hd1')} ost1I {!IF(customAjaxLinksOnReadMode_tf!=' ' && OR(contains(customAjaxLinksOnReadMode_tf,'{0}'),contains(customAjaxLinksOnReadMode_tf,'attachment.download')),'btt1','')} {!TXTCSS1}" href="{!tx_o_customLinksA}" onclick="if(event==null || !event.ctrlKey){navigateZP('{!tx_o_customLinksA}',top);return false;}" objk="{!IF(contains(customAjaxLinksOnReadMode_tf,'{0}'),'1','0')}" alnk="{!IF(contains(customAjaxLinksOnReadMode_tf,'attachment.download'),(URLFOR($Action.Attachment.Download,tx_o_customLinksOnReadMode_tf)+''),customAjaxLinksOnReadMode_tf)}" afld="{!tx_o_customLinksOnReadMode_tf}"><apex:outputtext value="{!tx.o[tf]}" rendered="{!filterObjShow_tf!='x' && NOT(customLinksOnReadMode_tf='empty')}" escape="{!tx.o[tf]!=null && tx.o[tf]!='' && not(contains(tx.o[tf],'<img'))}"/></a></span>
+                </td>
+                </apex:repeat>
+                </tr>
+                </apex:repeat>
+                
+                 <apex:repeat value="{!tableData}" var="tx" rendered="{!isEditOL}">
+                <tr class="dataRow">
+                <td class="CBL">
+                 <span class="lcbX" rid="{!tx.o['id']}"> <apex:inputCheckbox value="{!tx.checked}" onclick="cbAllV(this);" styleClass="lcbXRow RID{!tx.o['id']}"/></span>
+                </td>
+                <td style="display:none;" class="actL"></td>
+                <apex:repeat value="{!fieldset}" var="tf">
+                <apex:variable var="flNameCLean" value="{!SUBSTITUTE(tf,'.','-')}" /><apex:variable var="filterObjShow_NOT_RTA" value="{!filterObjShow[tf]!='9f'}" />
+                <td class="{!flNameCLean} iTd">
+                 <apex:inputField value="{!tx.o[tf]}" rendered="{!AND(isEditOL,filterObjShow[tf]!='x',NOT(CONTAINS(tf,'.')))}" onclick="enhanceFuncInp(this,'inpTS{!flNameCLean}');" styleClass="iTb inpSt_{!flNameCLean} " required="{!customReqField[tf] }" onmouseover="fixTitlex1(this,'n');" html-selVal="{!if(filterObjShow[tf]=='11',tx.o[tf],'')}"/>
+                  <span class="ost1X ost1XEMP oSt_{!flNameCLean}" style="{!IF(OR(filterObjShow[tf]=='x', AND(isEditOL,tx.o[tf]!=null,OR((CONTAINS(tf,'.'))))),'','display:none')}" onmouseover="fixTitlex1(this);"><apex:outputtext value="{!tx.extraFields[tf]}" rendered="{!filterObjShow[tf]=='x'}"/><apex:outputField value="{!tx.o[tf]}" rendered="{!AND(filterObjShow[tf]!='x',isEditOL,tx.o[tf]!=null,OR((CONTAINS(tf,'.'))))}" />
+                  </span>
+                </td>
+                </apex:repeat></tr>
+                </apex:repeat>
+                </tbody>
+                <tfoot>
+                <tr class="totalRow {!IF(AND(currConf.hideTotalsRow__c,NOT(showAddRow)),'hd1','')}">
+                <td style="{!IF(isEditOL||showCheckBoxes,'','display:none;') }" class="CBL" align="right">
+                  
+                  <div class="relative1"> <a title="{!$Label.add_row_button}"  onclick="preAddRow(); return false;" href="javascript:void(0);" onmouseover="preAddRowBublein(this);"
+                                    class="newRowACTCOL {!IF(showAddRow,'','hd1')}"  >&nbsp;</a>
+                       <div class="cent1 {!IF(showAddRow,'hd1','')}">{!$Label.Sum}</div>
+                  </div>
+                </td>
+                
+                <td style="{!IF(AND(NOT(isEditOL),NOT(currConf.hideEditDelColumn__c)),'','display:none;') }" class="actL">
+                    <div class="cent1 {!IF(NOT(showCheckBoxes),'','hd1')}">{!$Label.Sum}</div>
+                </td>
+                <apex:repeat value="{!fieldset}" var="tf">
+                 <td style="{!IF(OR(NOT(currConf.hideTotalsRow__c),showAddRow),'','display:none;')}" class="{!SUBSTITUTE(tf,'.','-')} TOT-{!tf} {!IF(OR(filterObjShow[tf]=='35',filterObjShow[tf]=='35f'),'cur','')}">
+                  <span class="ost1X oSt_{!SUBSTITUTE(tf,'.','-')}" onmouseover="showMoreCurs(this)">
+                           <apex:outputText value="{!IF(OR(filterObjShow[tf]=='35',filterObjShow[tf]=='35f'),'{0, number,currency}','{0, number,###,###.#}')}" rendered="{!AND(totalSums[tf]!=0,NOT(currConf.zaapit__hideTotalsRow__c))}">
+                               <apex:param value="{!totalSums[tf]}" />
+                           </apex:outputText>
+                   </span>
+                 </td>
+                </apex:repeat>
+                </tr>
+                </tfoot>
+                </table>
+                </apex:outputPanel>
+                </div>
+                <div class="srachPan2Wrp">
+                <apex:outputPanel id="srachPan2" styleClass="srachPan2">
+                    <div style="padding: 5px;height:53px;" >
+                    <div class="hd1" id="srachPan2NP">
+                        <table width="100%">
+                            <tr>
+                                <td width="30%"  style="vertical-align: middle;" nowrap="nowrap"><span style="display: inline-block;" id="Page_x_of_y">
+                                            </span></td>
+                                <td align="left"  style="vertical-align: middle;"><span class="prevnext"> <apex:commandButton onclick="jumpToClk({!currPage-1},maxPageOfsetGlb);return false;"
+                                            styleClass="prevBtn"
+                                            
+                                             value="{!$Label.Previous_button}" 
+                                            disabled="{!IF(currPage-1<0,true,false)}">
+                                            
+                                        </apex:commandButton> 
+                                        <span id="numPageLinks" class="{!IF(currConf.hidePageNumbers__c,'hd1','')}"></span>
+                                         <apex:commandButton onclick="jumpToClk({!currPage+1},maxPageOfsetGlb);return false;"
+                                            
+                                            styleClass="nextBtn" 
+                                             value="{!$Label.next_button}" 
+                                            disabled="{!IF(currPage+1>=foundPages,true,false)}">
+                                            
+                                        </apex:commandButton>
+
+                                </span></td> 
+                                <td width="320" style="vertical-align: middle;" class="{!IF(currConf.hideItemsPerPage__c,'hd1','')}"><span class="TotRowsPerPage" > {!$Label.Items_per_page} 
+                                
+                                <apex:selectList value="{!maxRowsPerPage}" size="1" onchange="if(!noticeUnsave() ){ return false;}else{loadingSH(); setMaxRowFunc($(this).val());}" style="margin-left:5px;">
+                                <apex:selectOptions value="{!pageSizes}"/> 
+                                 </apex:selectList> 
+                                </span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    </div>
+                </apex:outputPanel>
+</div>
+
+<apex:outputPanel id="srachPan1">
+                    <div id="found1" class="hd1">
+            <span style="display: inline-block; margin-left: 10px; font-size: 8pt; font-weight: normal;">
+  <apex:outputText rendered="{!rowCount>=maxTOTRows}" value="{!$Label.Showing_first_x_Result}">
+       <apex:param value="{!rowCount}"/>
+    </apex:outputText>
+    
+      <apex:outputText rendered="{!rowCount<maxTOTRows}"  value="{!$Label.Found_x_results}" >
+       <apex:param value="{!rowCount}"/>
+    </apex:outputText>
+        </span>
+                    </div> 
+<script type="text/javascript" defer="defer">
+try{
+DBsubQery="{!JSENCODE(queryx1FROM)}";
+queryCOunt1="{!JSENCODE(remoteQuery1)}";
+fileq="{!JSENCODE(queryx1Main)}";
+}catch(e){}
+currPageCls=Number("{!currPage}");
+maxRowsPerPageCls=Number("{!maxRowsPerPage}");
+showEntries="{!IF(viewRowCount>0,TEXT(maxRowsPerPage*(currPage)+1)+'-'+TEXT(maxRowsPerPage*(currPage)+viewRowCount)+' ','')}";
+mainViewIDTemp="{!mainViewIDTemp}";
+viewRowCount={!viewRowCount};
+</script>
+   <style>
+   {!if(isIe8,'','@media screen and (min-width: 721px){')}
+            {!savedColumnWidth}
+   {!if(isIe8,'','}')}
+  </style>
+
+                </apex:outputPanel>
+                
+                <apex:outputPanel id="massUpdate" rendered="{!OR(isEditOL,currConf.zaapit__Show_Mass_Updae_on_view_mode__c,currConf.zaapit__showMassDuplicate__c)}">
+                <span id="massUpdateSVB" class="hd1"></span>
+                 <div id="massUpdate" style="position:absolute;z-index:3;max-width:600px;width:98%;" class="hd1">
+                 <div id="massUpdatein1">
+                 <div style="max-width:600px;width:100%;" id="massUpdatein2" class="ui-dialog ui-widget ui-widget-content ui-corner-all">
+   <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix">
+      <span id="ui-dialog-title-dialog" class="ui-dialog-title"><span class="massDup1">{!$Label.Mass_Duplicate_title}</span><span class="massUp1">{!$Label.Mass_Update_title}</span><span class="massEdit1">{!$Label.Mass_edit_row_title}</span></span>
+      <a class="ui-dialog-titlebar-close ui-corner-all" href="javascript:void(0);" onclick="closeMassupdate();return false;" ><span class="ui-icon ui-icon-closethick">close</span></a>
+   </div>
+   <div  class="ui-dialog-content ui-widget-content" id="dialog">
+    <div id="massUpdatein" >
+                 <style>
+                 #massUpdate .mrk{background:#FFE5AD;} 
+                 </style>
+                <apex:outputpanel id="massUpdateFields">
+                <table border="0" cellspacing="1" cellpadding="4" width="100%">
+                <thead>
+                                 <tr style="font-weight: bold;background:#d5d5d5;">
+                                 <td>
+                                 <span class="massDup1">{!$Label.Overwrite}</span><span class="massUp1 massEdit1">{!$Label.Update_header}</span>
+                                 
+                                 </td>
+                                 <td>
+                                 {!$Label.Field_header}
+                                 </td>
+                                 <td>
+                                 {!$Label.New_Value_header}
+                                 </td>
+                           
+                                 </tr>
+                                 </thead>
+                                 <tbody>
+                 <apex:repeat value="{!massUpdateFieldToUpdate}" var="t1" > 
+<tr class="{!t1.o}_RW1">
+<td >
+<span class="btt1L" onmouseover="fixTitlex2(this,false,'L')" title="{!$Label.Mark_to_overwrite_this_field}">
+<apex:inputCheckbox value="{!t1.checked}"  styleClass="{!t1.o}_MU1 CBMU1" onclick="if($(this).is(':checked')){$('.{!t1.o}_RW1').addClass('mrk');}else{$('.{!t1.o}_RW1').removeClass('mrk');}"/>
+</span>
+</td>
+<td>{!fieldsHeaders[t1.o]}</td>
+<td class=" muf1 {!t1.o}" fld="{!t1.o}"><apex:inputField value="{!massUpdateEmptyEl.o[t1.o]}" onclick="$('.{!t1.o}_MU1').prop('checked','checked');$('.{!t1.o}_RW1').addClass('mrk');enhanceFuncInp(this,'{!t1.o}_RW1');" html-mu_afchange="$('.{!t1.o}_MU1').prop('checked','checked');$('.{!t1.o}_RW1').addClass('mrk');" styleClass="iTb" required="false"/></td>
+
+</tr>
+                                    
+                         
+                        </apex:repeat>
+                        </tbody>
+                </table>        
+                </apex:outputpanel>
+</div>
+<div class="ui-dialog-buttonpane ui-widget-content ui-helper-clearfix">
+<div class="ui-dialog-buttonset">
+<span class="massUp1">
+<apex:commandButton value="{!$Label.Preview_button}" onclick="btnMassUodate(false);return false;" rendered="{!or(isEditOL,currConf.zaapit__Show_Mass_Updae_on_view_mode__c)}"/>
+<apex:commandButton value="{!$Label.Update_Selected_Items}" onclick="btnMassUodate(true);return false;" rendered="{!or(isEditOL,currConf.zaapit__Show_Mass_Updae_on_view_mode__c)}"/>
+<apex:commandButton styleClass="orangeBtn" value="{!$Label.Mass_Update_all_items}" onclick="massUpdateAllRows();return false;" style="margin-right:0px;" rendered="{!AND((showCutomizeLinkUserGS||$User.Enable_ZaapIT_s_Layout_Editor__c),or(isEditOL,currConf.zaapit__Show_Mass_Updae_on_view_mode__c))}"/>
+<span class="{!if(showCutomizeLinkUserGS || $User.Enable_ZaapIT_s_Layout_Editor__c,'helpQMSFDC btt1','hd1')}" onmouseover="fixTitlex2(this)" title="{!$Label.Mass_Update_All_btn_help}" onclick="stopProp1(event);">&nbsp;</span>
+</span>
+<span class="massDup1">
+
+<apex:commandButton value="{!$Label.Duplicate_Selected_Items_Shallow}" onclick="btnMassDuplicate(true);return false;" rendered="false"/>
+
+<apex:commandButton value="{!$Label.Duplicate_Selected_Items}" onclick="btnMassDuplicate(false);return false;" rendered="{!currConf.zaapit__showMassDuplicate__c}"/>
+<span class="helpQMSFDC btt1" onmouseover="fixTitlex2(this)" title="{!$Label.Duplicate_button_msg}">&nbsp;</span>
+
+</span>
+<span class="massEdit1">
+<apex:commandButton value="{!$Label.Save_button}" onclick="btnMassUodate(true,'1');return false;" />
+</span>
+<apex:commandButton value="{!$Label.Cancel_mass_update}" onclick="closeMassupdate();return false;" />
+
+</div></div>
+   </div>
+</div>
+                 </div>
+                 </div>
+                
+                 
+                 <script type="text/javascript" defer="defer">
+            
+                 var lastHeightBMU=null;
+                 var lastHeightBodyMU=null;
+              
+
+                 
+                 </script>
+                </apex:outputPanel>
+                    <script defer="defer">
+                    var massUpdateFieldToUpdate_size={!massUpdateFieldToUpdate.size};
+                    
+//alert("++{!includePageNameIframe}+++");
+    //if("{!includePageNameIframe}".indexOf("about")==-1){
+   // var curPage=(self.location+"").split(".")[1];
+    //alert(curPage+" "+"https://"+curPage+".salesforce.com{!includePageNameIframe}");
+    //$("#theIframe").attr("src","https://"+curPage+".salesforce.com{!includePageNameIframe}");
+
+function refershForParent(){
+loadingSH();
+    var prefix="/apex/";
+    var loc1=(self.location+"");
+    if(loc1.indexOf("/servlet/")>-1){
+        //prefix="/apex/"
+    }else if(loc1.indexOf("/apex/")>-1){
+        prefix="../apex/";
+    }else if(!isSF1()){
+        prefix="apex/";
+    }
+    //refersh();
+    if(loc1.indexOf("zaapit__")>-1){
+        prefix=prefix+"zaapit__";
+    }
+    var mainID="{!mainId}";
+    if(!isSF1()){
+        navigateZP(prefix+"{!UrlEnd1}?"+(mainID==""?"zba=1":"id="+mainID)+(isInIframe()?"&inline=1":"")+sfdcTabNameParam+"&pw1="+escape(parentLocParam1)+"&tp={!tp_conf}",self);
+    }else{
+        self.location=self.location;
+    }
+}
+</script>
+
+ <apex:actionFunction action="{!jumpTo}" name="jumpTo" immediate="{!(isEditOL)}"
+            reRender="pgblck" >
+              <apex:param name="currPage" assignTo="{!currPage}" value=""></apex:param>
+            </apex:actionFunction>
+            
+            </apex:pageBlock>
+            
+            
+        </div>
+   <apex:outputtext value="{!msgMassUpdateAllRows}" id="msgMassUpdateAllRowsID" styleClass="hd1 msgMassUpdateAllRowsID"/>
+   
+        <apex:actionFunction action="{!searchTB}" name="searchTB"
+            reRender="srachPan2,srachPan1,mainTB1,views1" oncomplete="fixOnload();"> 
+            <apex:param name="searchSTR" assignTo="{!searchSTR}" value="" />
+        </apex:actionFunction>
+
+    <apex:actionFunction action="{!setMaxRow}" name="setMaxRowFunc" reRender="pgblck" oncomplete="fixOnload();">
+      <apex:param value="" name="setMaxRow" assignTo="{!maxRowsPerPage}"></apex:param>
+     </apex:actionFunction>
+     
+     
+     <apex:actionFunction action="{!filpEditMode}" name="filpEditModeJS" oncomplete="fixOnload();"
+            reRender="pgblck" >
+        </apex:actionFunction>                                       
+
+<apex:actionFunction action="{!deleteOneRow}" name="deleteOneRowFunc"
+            reRender="pgblck" >
+            <apex:param value="" name="idToDel" assignTo="{!idToDel}"></apex:param>
+        </apex:actionFunction>
+        
+
+        
+         <apex:actionFunction action="{!save}" name="saveFunc"
+            reRender="pgblck" >
+        </apex:actionFunction>
+        
+         <apex:actionFunction name="addNewRowAF" action="{!newRow}" oncomplete="addnewRow();" reRender="pgblck" immediate="true">
+         <apex:param name="NumberOfNewRows" assignTo="{!NumberOfNewRows}" value="1" />
+        </apex:actionFunction>
+
+
+        <apex:actionFunction action="{!saveViewAF}" name="saveViewAF" reRender="pgblck" >
+        <apex:param name="mainViewID" assignTo="{!mainViewID}" value="" />
+        <apex:param name="mainViewName" assignTo="{!mainViewName}" value="" />
+        </apex:actionFunction>
+        
+        <apex:actionFunction action="{!fetchView1}" name="fetchView1x" reRender="pgblck" >
+        <apex:param name="mainViewID1" assignTo="{!mainViewID}" value="" />  
+        </apex:actionFunction>
+        
+         <apex:actionFunction action="{!deleteView1}" name="deleteView1x" reRender="pgblck" >
+        <apex:param name="mainViewID1" assignTo="{!mainViewID}" value="" />  
+        </apex:actionFunction>
+        
+        <apex:actionFunction action="{!searchTB}" name="filterColsX"
+            reRender="srachPan2,srachPan1,mainTB1,views1" oncomplete="fixOnload();">
+        </apex:actionFunction>
+
+        <apex:actionFunction name="sortTB"  reRender="pgblck"  action="{!sortOrder1}" >
+                 <apex:param value="" name="sortBy" assignTo="{!sortBy}"></apex:param>
+                 <apex:param value="" name="sortDir" assignTo="{!sortDir}"></apex:param>
+ </apex:actionFunction>
+ 
+<apex:actionFunction action="{!massUpdateRows}" name="massUpdateRows" 
+            reRender="pgblck" >
+              <apex:param name="update" assignTo="{!massUpdateDoUpdate}" value="false" />
+        </apex:actionFunction>
+ 
+ <apex:actionFunction action="{!massUpdateALLRows}" name="massUpdateALLRowsAF"
+            oncomplete="doAllMassUpdate('1');" rerender="msgMassUpdateAllRowsID,mainTB1Err,massUpdateFields" >
+             <apex:param name="idsToMassUpdate" assignTo="{!idsToMassUpdate}" value=""/>
+        </apex:actionFunction>
+   
+   
+    <apex:actionFunction action="{!massDuplicateRows}" name="massDuplicateRows"
+            reRender="pgblck" >
+        </apex:actionFunction>
+             
+ 
+  <apex:actionFunction action="{!massDuplicateRowsRegular}" name="massDuplicateRowsRegular"
+            reRender="pgblck" >
+        </apex:actionFunction>
+ 
+ <apex:actionFunction action="{!massUpdateRows}" name="massUpdateRowsNSave"
+            reRender="pgblck" >
+              <apex:param name="update" assignTo="{!massUpdateDoUpdate}" value="false" />
+        </apex:actionFunction>
+           
+      
+            
+      
+            <apex:actionFunction action="{!refersh}" name="refersh"/>
+            
+            <div title="{!$Label.Layout_Editor}" id="customizeViewx1" class="hd1"></div>
+           
+           
+           
+         <apex:repeat value="{!fieldset}" var="tf">
+         <apex:variable var="tfConv" value="{!SUBSTITUTE(tf,'.','-')}"/>
+                <span id="fl{!tfConv}" class="hd1 filterino">   
+                        <span style="position:relative;disply:inline-block;" origFl="inpf{!tfConv}"> 
+                        
+                         <apex:inputtext onclick="$('#{!tf}Rad3').click();if($(this).val()==' '){$(this).val('');}" value="{!filterObj[tf]}" styleClass="inpf{!tfConv} filterinoIPT {!IF(OR(filterObjShow[tf]=='2',filterObjShow[tf]=='6'),'hd1 filtDatex1Mnx','')}" title="{!$Label.Filter_box_help_Title}" onmouseover="fixTitlex2(this,false,'{!IF(NOT(currConf.zaapit__hideTopFilterSave__c),'','R')}');" onkeydown="if (event!=null && event.keyCode===13)return false;" />
+                         <span onclick="$('.inpf{!tfConv}').click().val('');  filterCol(null,13);"
+                        class=" {!IF(OR(filterObjShow[tf]=='2',filterObjShow[tf]=='6'),'hd1','filterinoIPTCS1 ui-icon-circle-closeZP')}"></span>
+                        <span class="searchTxt {!IF(OR(filterObjShow[tf]=='2',filterObjShow[tf]=='6',filterObj[tf]!=' '),'hd1','')}" onclick="clickSearchTxt(this);">{!$Label.Search_label}</span>
+                    </span>
+                    <apex:outputPanel rendered="{!OR(filterObjShow[tf]=='2',filterObjShow[tf]=='6')}">
+                    <span style="position:relative;disply:inline-block;"> 
+                        
+                      <input as="1" origFl="inpf{!tfConv}" class="inpf{!tfConv}1 {!IF(OR(filterObjShow[tf]=='2',filterObjShow[tf]=='6'),'filtDatex1','')}"  onkeydown="if (event!=null && event.keyCode===13)return false;" width="69"/>
+                         <span onclick="$('.inpf{!tfConv}1').val('');  filterCol(null,13);"
+                        class="filterinoIPTCS1 ui-icon-circle-closeZP"></span>
+                    </span>
+                    -
+                     <span style="position:relative;disply:inline-block;"> 
+                        
+                    <input as="2" origFl="inpf{!tfConv}" class="inpf{!tfConv}2 {!IF(OR(filterObjShow[tf]=='2',filterObjShow[tf]=='6'),'filtDatex1','')}"  onkeydown="if (event!=null && event.keyCode===13)return false;" width="69"/>
+                         <span onclick="$('.inpf{!tfConv}2').val('');  filterCol(null,13);"
+                        class="filterinoIPTCS1 ui-icon-circle-closeZP"></span>
+                        
+                    </span>
+                    </apex:outputPanel>
+                    
+                    <a href="javascript:void(0)" class="menuItemFlt SortAsn {!IF(filterObjShow[tf]=='11','hd1','')}" onclick="sortTbDfrnc('{!tf}','asc',event);">
+                    {!$Label.Sort_Ascending}
+                    </a>
+                    
+                    <a href="javascript:void(0)" class="menuItemFlt SortDec {!IF(filterObjShow[tf]=='11','hd1','')}" onclick="sortTbDfrnc('{!tf}','desc',event);">
+                    {!$Label.Sort_Descending} 
+                    </a>
+                    
+                    <a href="javascript:void(0)" class="menuItemFlt clearFlt {!IF(filterObjShow[tf]=='11','','')}" onclick="$('#fl{!tfConv} .inptFilter, #fl{!tfConv} .filtDatex1,#fl{!tfConv} .filtDatex1Mnx').val('');$('#fl{!tfConv} .filterinoIPTCS1').val('').click();if(isSF1()){closeFilterx();}">
+                    {!$Label.Clear_Filter} 
+                    </a>
+                    <div class="extBtns"></div>
+                    <apex:outputPanel rendered="{!OR(filterObjShow[tf]=='3',filterObjShow[tf]=='35',filterObjShow[tf]=='5',filterObjShow[tf]=='8',filterObjShow[tf]=='3f',filterObjShow[tf]=='35f')}">
+                    <div class="filterObjShow1">
+                    <table cellspacing="0" cellpadding="0" border="0">
+                    <tr>
+                    <td width="23">
+                    <span class="btt1L" onmouseover="fixTitlex2(this,false,'L')" title="{!$Label.Range_Filter}"><input type="radio" name="{!tf}Rad" id="{!tf}Rad" value="R" checked="checked"/></span>
+                    </td>
+                    <td>
+                    <span class="rd" title="{!$Label.Range_Filter}">
+                    <apex:inputtext value="{!filterObjSel[tf]}" styleClass="inptFilter" onclick="$('#{!tf}Rad').click();stopProp1(event);" onkeydown="if (event!=null && event.keyCode===13)return false;" onmouseover="fixTitlex2(this,false)" />&nbsp;-&nbsp;<apex:inputtext value="{!filterObjInpt[tf]}" styleClass="inptFilter" onclick="$('#{!tf}Rad').click();stopProp1(event);" onmouseover="fixTitlex2(this,false)" onkeydown="if (event!=null && event.keyCode===13)return false;" />
+                    </span>
+                    </td>
+                    </tr>
+                    <tr>
+                    <td class="b1 rangeX1Rad"><input type="radio" name="{!tf}Rad" value="-" id="{!tf}Rad2"/></td>
+                    <td> <label for="{!tf}Rad2">{!$label.Blanks_radio_txt}</label>
+                    </td>
+                    </tr>
+                    <tr>
+                    <td class="s1 rangeX1Rad btt1L" onmouseover="fixTitlex2(this,false,'L')"><input type="radio" name="{!tf}Rad" value="" id="{!tf}Rad3" onclick=""/> 
+                    </td>
+                    <td><label for="{!tf}Rad3">{!$label.Search_Radio_txt}</label>
+                    </td>
+                    </tr>
+                    </table>
+                    </div> 
+                    </apex:outputPanel>
+                    <div class="availVals {!IF(currConf.hide_multi_value_filters__c,'hd1','')}">
+                    <div class="ld1"></div>
+                    </div>
+                   
+                </span>
+                </apex:repeat>   
+            
+            <script type="text/javascript" >
+            $(document).ready(ready3ZP);
+            </script>
+          <apex:inputtext styleClass="hd1 columnsWidthXZ" value="{!columnsWidth}"/>
+          
+    </apex:form>
+
+<form  method="post" target="export_to" id="export_to_form" >
+<input name="tp" value="{!confName}" id="tp1" type="hidden"/>
+<input name="type" value="" id="fileType" type="hidden"/>
+<input name="or1" value="0" id="or1" type="hidden"/>
+<input name="q" value="{!queryx1Main}" id="fileq" type="hidden"/>
+<input name="vid" value="{!mainViewID}" id="vid" type="hidden"/>
+</form>
+
+
+
+
+<span class="{!IF(NOT(currConf.Hide_Scroll_Buttons__c),'','hd1')}">
+<div id="graphsRusx" class="hd1"></div>
+<div id="mapRusx" class="hd1"></div>
+<div id="scrollCntrls1" class="hd12">
+                 
+<!-- 
+<div class="ui-widget-content ui-corner-all" style="margin-bottom:15px;">
+<div onclick="togglesGraphs1();" class="btn1 ui-state-default ui-corner-all" title="Show Dashboard"><span class="ui-icon ui-icon-image"></span></div>
+
+</div>
+ -->
+<span class="{!IF(NOT(currConf.Hide_Scroll_Buttons__c),'','hd1')}">
+<div class="pagescroll ui-widget-content ui-corner-all">
+   <div title="{!$label.Scroll_Up}" onmouseover="fixTitlex2(this,false,'L',1);" onclick="scrollTop1();" class="btn1 ui-state-default ui-corner-all"><span class="ui-icon ui-icon-circle-arrow-n"></span></div>
+   <div title="{!$label.Scroll_Down}" onmouseover="fixTitlex2(this,false,'L',1);" onclick="scrollBottom1();" class="btn1 ui-state-default ui-corner-all"><span class="ui-icon ui-icon-circle-arrow-s"></span></div>
+   </div>
+   <div class=" pages12 ui-widget-content ui-corner-all" style="margin-top:5px;">
+   <span class="th" onmouseover="fixTitlex2(this,false,'L',1)" title="{!$Label.Pages}">{!$Label.Pages}</span>
+   <div title="{!$label.Next_Page}" onmouseover="fixTitlex2(this,false,'L',1);" onclick="$('.nextBtn:visible').click();" class="btn1 nextBtnF ui-state-default ui-corner-all"><span class="ui-icon ui-icon-circle-arrow-e"></span></div>
+   <div title="{!$label.Previous_page}" onmouseover="fixTitlex2(this,false,'L',1);" onclick="$('.prevBtn:visible').click();" class="btn1 prevBtnF ui-state-default ui-corner-all"><span class="ui-icon ui-icon-circle-arrow-w"></span></div>
+   <span class="th curPgScrlW"  onmouseover="fixTitlex2(this,false,'L',1);"># <span class="curPgScrl">1</span></span>
+</div> 
+   </span>
+   
+</div>
+
+ 
+ 
+</span>
+
+<script type="text/javascript">
+$(document).ready(ready2ZP);
+</script>
+<div id="textAreaEditDialog1" title="" class="hd1">
+<textarea id="textAreaEditDialog1TA" style="width:99%;height:360px;border:1px solid #a5a5a5" onkeydown="var curlen=this.value.length;$('#currLen1').html(curlen);if(this.maxlength!=null && curlen+1>maxlength)return false;" >
+</textarea>
+<div style="color:#a5a5a5;text-align:right;margin-top:3px;"><span id="currLen1"></span><span id="maxLen1"></span></div>
+</div>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script>
+if(NOT_Hide_graph_link_on_filter__c){
+    document.write("<"+"script type=\"text/javascript\">try{google.load('visualization', '1.0', {'packages':['corechart','annotatedtimeline','geochart']});}catch(e){}<"+"/script"+">");
+}else{
+    document.write("<"+"script type=\"text/javascript\">try{google.load('visualization', '1.0');}catch(e){}<"+"/script"+">");
+}
+</script>
+</div>
+<div class="hd1" id="generalWinIframe1"><iframe name="generalWinIframe1Name" id="generalWinIframe1IDIframe"  src="about:blank" width="100%"  frameborder="0"/></div>
+
+                <div class="resizex1"></div>
+                <div class="resizex2"></div>
+                
+<apex:outputPanel rendered="{!currConf.zaapit__external_JS_include__c!=''}" >
+<script type="text/javascript" src="{!currConf.external_JS_include__c}" defer="defer"></script>
+</apex:outputPanel>
+
+<apex:outputPanel rendered="{!currConf.zaapit__external_CSS_include__c!=''}" >
+<link rel="stylesheet" href="{!currConf.external_CSS_include__c}" type="text/css"/>
+</apex:outputPanel>
+<div class="mobActBTNW" style="display:none;" onclick="openActionsMob($(this).find('.mobActBTN:first'));">
+<a class="mobActBTN hd1" href="javascript:void(0);" onclick="openActionsMob(this);"> + </a>
+</div> 
+ <script>
+ try{
+ 
+  HTMLElement.prototype.appendChild2=HTMLElement.prototype.appendChild;
+  HTMLElement.prototype.appendChild=function(s){
+  try{
+ 	if(s!=null && s.src!=null && (s.src.indexOf("MarketingSurveyResponse")>-1)){
+ 		//alert("1");
+ 	}else if(s.className!=null && (s.className+"").indexOf('google-visualization-tooltip')>-1){
+ 	  if(s.innerHTML!=null && s.innerHTML!="" && s.innerHTML.indexOf("  ")>-1)handelAdds1(s.innerHTML);
+
+ 	}else{
+ 		return this.appendChild2(s);
+ 	}
+ 	}catch(e){alert(e);}
+ 	//alert(s);
+ };
+ }catch(e1){}
+ //alert(document.getElementsByTagName('script')[0].appendChild);
+ 
+ </script>
+ <div id="guideHolders1"></div>
+ <div class="powerBy1"><apex:outputText value="{!$Label.Powered_by2}" escape="false"/></div>
+ <div class="powerByX hd1"><apex:outputText value="{!$Label.Powered_by}" escape="false"/></div>
+ 
+</apex:component>

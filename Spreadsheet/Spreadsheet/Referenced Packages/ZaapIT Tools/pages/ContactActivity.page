@@ -1,0 +1,50 @@
+<apex:page standardController="Contact" showHeader="false" sidebar="false"> 
+<c:zp_ifrm_helper />
+
+  <a href="/{!Contact.id}" target="_top"><div class="h1"><apex:outputText value="{!Contact.name}">
+    </apex:outputText></div></a>
+
+<apex:relatedList subject="{!Contact}" list="OpenActivities"/>
+<apex:relatedList subject="{!Contact}" list="ActivityHistories"/>
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <script>
+    google.load('visualization', '1', { 'packages': ['map'] });
+    google.setOnLoadCallback(drawMap);
+
+	
+    function drawMap(response) {
+    var d1=[
+        ['Address', 'Explanation'], 
+        [$("#mailingAddr").text().replace(/\n|\r| \, |\, \,|\'/ig," "), '{!$Label.Mailing_Address} '+$("#mailingAddr").text().replace(/\n|\r| \, |\, \,|\'/ig," ")],
+       {!IF(contact.OtherStreet=='' || contact.OtherStreet==contact.MailingStreet,'//','')} [$("#otherAddr").text().replace(/\n|\r| \, |\, \,|\'/ig," "), '{!$Label.Other_Address} '+$("#otherAddr").text().replace(/\n|\r| \, |\, \,|\'/ig," ")],
+        ];
+        addDir1(d1);
+      var data = google.visualization.arrayToDataTable(d1);
+
+    var options = { showTip: true ,useMapTypeControl:false,enableScrollWheel:false,mapType:'terrain',{!IF(contact.OtherStreet=='','zoomLevel:12','')}
+    //,error:function(){ alert(1)'}
+    };
+
+    var map = new google.visualization.Map(document.getElementById('chart_div'));
+
+    map.draw(data, options);
+    
+ 	google.visualization.events.addListener(map, 'error', function(){
+ 	$("#chart_div").html("{!$Label.Error_creating_map}<br/><br/>"+d1[1][1]).height("auto").css({"background-color":"transparent"});
+ 	});
+
+  };
+   </script>
+     <apex:pageBlock title="{!$Label.Contact_address}">
+   <div id="chart_div"></div>
+ <textarea id="mailingAddr" class="hd1">
+ {!contact.MailingStreet}, {!contact.MailingCity}, {!contact.MailingState}, {!contact.MailingCountry}
+ </textarea>
+ <textarea id="otherAddr"  class="hd1">
+ {!contact.OtherStreet}, {!contact.OtherCity}, {!contact.OtherState}, {!contact.OtherCountry}
+ </textarea> 
+
+ </apex:pageBlock>
+
+</apex:page>

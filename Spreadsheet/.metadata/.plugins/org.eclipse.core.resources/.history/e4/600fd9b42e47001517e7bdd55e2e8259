@@ -1,0 +1,405 @@
+<apex:page controller="SpreadsheetController" sidebar="false">
+    <apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" />
+<!--     <apex:includeScript value="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.17.8/js/jquery.tablesorter.min.js" /> -->
+<!--     <apex:includeScript value="//cdnjs.cloudflare.com/ajax/libs/jquery.blockUI/2.66.0-2013.10.09/jquery.blockUI.min.js" /> -->
+<!--     <apex:stylesheet value="//cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.17.8/css/theme.blue.css" /> -->
+<!--     <apex:includeScript value="https://cdn.datatables.net/1.10.8/js/jquery.dataTables.min.js" /> -->
+<!--     <apex:stylesheet value="https://cdn.datatables.net/1.10.8/css/jquery.dataTables.min.css" />     -->
+
+    <!-- Css applied on the page -->
+    <style>
+        .hide {
+            display: none;
+        }
+        
+        #filterPopupDiv{
+        	display: none;
+        	border: solid 1px #B9B3B3;
+        	background-color: #EAE9E9;
+        }
+
+        #sObjectRecordDisplayTable, .datatableHeader, .dataTableCell {
+            border: solid 1px #B9B3B3;
+            padding: .3%;
+            border-collapse: collapse;
+        }
+        
+        .datatableHeader{
+            background-color: #EAE9E9;
+        }
+        
+        tfoot input {
+           width: 100%;
+           padding: 3px;
+           box-sizing: border-box;
+         }        
+    </style>
+
+    <apex:form id="theForm">
+        <apex:actionStatus id="activeLoading" >
+            <apex:facet name="start" >
+              <img src="/img/loading.gif" width="20px" height="20px"/>
+            </apex:facet>
+        </apex:actionStatus>
+        <apex:variable var="i" value="{!1}"/>
+
+        <apex:actionFunction name="deleteSelected"
+            immediate="true" action="{!deleteSelected}" reRender="recordDisplayPanel, errorMessages"  oncomplete="bbindClickEventonTableCell()">
+            <apex:param value="" assignTo="{!rowNumbersToDelete}" name="rowsToDel"/>
+        </apex:actionFunction>
+
+        <apex:commandLink action="{!redirectToListViewFilter}"> Create List View </apex:commandLink>
+
+        <apex:outputpanel id="errorMessages"><apex:pageMessages /></apex:outputpanel>         
+        <!--This panel is for displaying the records from the sObject -->
+        <apex:outputpanel id="recordDisplayPanel">
+            
+            <div> 
+				<label for="filter">Filter</label>
+				<input type="text" name="filter" value="" id="filter" />            
+            </div>
+            
+            <div>
+                <table id="sObjectRecordDisplayTable" style="width: 100%" border="">
+                    <thead >
+                        <tr>
+                            <th class="datatableHeader"> 
+                                <apex:inputCheckbox value="{!isAllSelected}" id="selectAll" onChange="toggleSelectAll(this)"/>
+                            </th>
+                            <apex:repeat value="{!fieldsSObjectMap}"
+                                var="sObjectField">
+                                <th class="datatableHeader" >{!fieldsSObjectMap[sObjectField]}  <button type="button" class = "filterButton"><img src = "http://www.altechna.com/images/filter-icon16.png"/></button></th>
+                            </apex:repeat>
+                                
+                        </tr>
+                    </thead>
+                    
+                    <tfoot>
+                    
+                    </tfoot>
+                    
+                    <tbody>
+                        <apex:repeat value="{!sObjectRecordList}"
+                            var="sObjectObj">
+                            <tr id="{!sObjectObj.record['id']}">
+                                <td>
+                                   <apex:inputCheckbox value="{!sObjectObj.isSelected}" styleClass="recordCb" onChange="toggleSelectAllCheckbox()"/>
+                                </td>
+                                <apex:repeat value="{!fieldsSObjectMap}"
+                                    var="sObjectField">
+                                    <td tabindex = "{!i}">   
+                                        <div class="outputFieldDiv">
+                                            <apex:outputfield styleClass="outputFieldClass" value="{!sObjectObj.record[sObjectField]}"/>
+                                        </div>
+                                        <div class="inputFieldDiv hide">
+                                            <apex:inputHidden value="{!sObjectObj.rowCounter}"/>
+                                            <apex:inputfield styleClass="inputFieldClass"  value="{!sObjectObj.record[sObjectField]}"/>
+                                        </div>
+                                    </td>
+                                    <apex:variable var="i" value="{!i+1}"/>
+                                </apex:repeat>
+                                <td>
+                                    <apex:commandLink action="{!save}"  status="activeLoading" value="Save" id="theCommandLink" styleClass="saveLinkClass" rerender="recordDisplayPanel,errorMessages" oncomplete="bindClickEventonTableCell()">
+                                        <apex:param name="currentRowNumber" value="{!sObjectObj.rowCounter}"/>
+                                    </apex:commandLink>
+                                </td>
+                            </tr>
+                            
+                        </apex:repeat>
+                        <tr><td>
+                                <apex:commandButton immediate="true"  rendered = "{!AND(sObjectRecordList != null, sObjectRecordList.size > 0)}" value="Add New Row" action="{!addNewRecord}" reRender="recordDisplayPanel" oncomplete=" bindClickEventonTableCell()"/>
+                            </td>
+                        </tr>
+                        
+                    </tbody>
+                </table>
+            </div>
+            <!-- Buttons for pagination -->
+            <div align = 'center'>
+                <apex:panelGrid columns="7"  rendered = "{!AND(sObjectRecordList != null, sObjectRecordList.size > 0)}" >
+                    <apex:commandButton immediate="true" status="activeLoading" reRender="recordDisplayPanel,errorMessages" disabled="{!currentPageNo==1}" value="First" action="{!first}"  oncomplete=" bindClickEventonTableCell()" />
+                    <apex:commandButton immediate="true" status="activeLoading" reRender="recordDisplayPanel,errorMessages" disabled="{!currentPageNo==1}" value="Previous" action="{!previous}"  oncomplete=" bindClickEventonTableCell()"/>
+                    <apex:commandButton immediate="true" status="activeLoading" reRender="recordDisplayPanel,errorMessages" disabled="{!currentPageNo==lastPageNo}" value="Next" action="{!next}"  oncomplete=" bindClickEventonTableCell()" />
+                    <apex:commandButton immediate="true" status="activeLoading" reRender="recordDisplayPanel,errorMessages" disabled="{!currentPageNo==lastPageNo}" value="Last" action="{!last}"  oncomplete=" bindClickEventonTableCell()"/>
+                    <apex:commandButton action="{!savePage}" status="activeLoading" value="Save Page Records" reRender="recordDisplayPanel,errorMessages" id="savePage" styleClass="saveLinkClass" oncomplete=" bindClickEventonTableCell()"/>  
+                    <apex:commandButton immediate="true" status="activeLoading"  value="Delete Selected Records" id="deleteSelected" styleClass="saveLinkClass" onclick="deleteSelectedRecords(); return false;"/>
+                </apex:panelGrid>           
+            </div>
+            
+<!--            div for popup filter -->
+            <div class="filterPopup" id="filterPopupDiv">
+              <form>
+                <label id="lblColumnIndex" ></label>
+                
+                <div><input type="text" id="txtQuery"></input></div>    
+                
+                <div>
+                    &nbsp;
+                    <div><img src = "http://png-3.findicons.com/files/icons/1620/crystal_project/16/sort_incr.png"/><a id = 'sortAsc' > Sort Ascending</a></div>
+                    <div><img src = "http://png-2.findicons.com/files/icons/1620/crystal_project/16/sort_decrease.png"/><a id = 'sortDesc'> Sort Descending</a></div>
+                    <div><img src = "http://www.gobroadreach.com/_images/grid/icon_clear_all_filters_16.png"/><a id = 'clearFilter'> Clear Filters</a></div>
+                    &nbsp;
+                </div>
+                
+                <div id = 'divDistinctValues'>
+                
+                </div>
+                
+                <div align="center">
+	
+                  <input type="button" value="Cancel" id="btnCancel"></input>
+                  <input type="button" value="Filter" id="btnFilter"></input>
+                  <br/>
+                </div>
+              </form>
+            </div>
+            
+        </apex:outputpanel>
+    </apex:form>
+
+    <script>
+        $j = jQuery.noConflict();
+
+        $j(document).ready(function() {
+
+            bindClickEventonTableCell();
+            bindClickEventOnRow();
+
+	      //default each row to visible
+	      $j('tbody tr').addClass('visible');
+        });
+        
+          
+        //Gets the click event on the table and opens the inputfield on click event. 
+        function bindClickEventonTableCell() {
+
+            $j("#sObjectRecordDisplayTable tbody td").focusin(function(e) {
+                var currentThis = $j(this);
+                $j('.outputFieldDiv').removeClass('hide');
+                $j('.inputFieldDiv').addClass('hide');
+                var hasHide = $j(this).find('.inputFieldDiv').hasClass('hide');
+                if(hasHide) {
+                    $j(this).find('.outputFieldDiv').addClass('hide');
+                    $j(this).find('.inputFieldDiv').removeClass('hide');
+                 }
+                 $j(this).find('input').change(function(){
+                    $j(currentThis).find('span').text($j(this).val());
+                }); 
+            });
+        }
+
+        //Function to get the id stored in the tr tags Id attribute on click 
+        function bindClickEventOnRow() {
+            $j('.saveLinkClass').click(function(){
+                event.preventDefault();
+                var recordId = $j(this).closest('tr').attr("id");
+                return false;
+            });
+        }
+
+        //Function to capture Ctrl + Save event
+//         $j().keypress(function(event) {
+//             event.preventDefault();
+//             if (!(event.which == 115 && event.ctrlKey) && !(event.which == 19)) return true;
+//               alert("Ctrl-S pressed");
+//             return false;
+//         }); 
+
+        //function to select or deselect all checkboxes
+        function toggleSelectAll(checkbox){
+            if(checkbox.checked){
+                $j(".recordCb").prop('checked',true);
+            }
+            else{
+                $j(".recordCb").prop('checked',false);
+            }
+        }
+        
+        //variable for storing selected row numbers
+        var hiddenRowNumbers;
+        
+        //function to toggle SelectAll checkbox based on other checkboxex    
+        function toggleSelectAllCheckbox(){
+            hiddenRowNumbers = '';
+            var cb = $j(".recordCb");
+            if(cb.filter(':not(:checked)').length==0){ //if all none of the checkbox is unchecked
+                $j("input[id$=selectAll]").prop('checked', true);
+            } else {
+                $j("input[id$=selectAll]").prop('checked', false);
+            }
+        } 
+
+        //Function to concatenate and send rowNumber string for deleting selected records
+        function deleteSelectedRecords() {
+           
+           hiddenRowNumbers = '';            
+           $j("input:checked").each(function () {
+               if($j(this).is(':checked')){
+                   hiddenRowNumbers += $j(this).parent().parent().find("input[type='hidden']").val() + ',';
+                   $j(this).closest('tr').remove();
+               }
+           });        
+           deleteSelected(hiddenRowNumbers);      
+        } 
+        
+//Scripts related to smart Filters        
+        //Keyup event listener for global filter inputbox
+        $j('#filter').keyup(function(event) {
+              //if esc is pressed or nothing is entered
+              if (event.keyCode == 27 || $j(this).val() == '') {
+                //if esc is pressed we want to clear the value of search box
+                $j(this).val('');
+                     
+                //we want each row to be visible because if nothing
+                //is entered then all rows are matched.
+                $j('tbody tr').removeClass('visible').show().addClass('visible');
+              }
+         
+              //if there is text, lets filter
+              else {
+                filter('#sObjectRecordDisplayTable tbody tr', $j(this).val());
+              }
+        });
+                
+        //On click event listener for filter button click on each column header
+        $j(".filterButton").click(function() {
+            var colIndex = $j(this).parent().parent().children().index($j(this).parent());
+            var title = $j(this).parent().text();
+            var position = $j(this).parent().position();
+            placeDiv(position.left,position.top + 30,"#filterPopupDiv");
+            $j('#lblColumnIndex').val(colIndex);
+
+            //default each row to visible
+            $j('tbody tr').addClass('visible');            
+            $j("#filterPopupDiv input[type=text]").val('');
+            $j("#filterPopupDiv input[type=text]").attr("placeholder", "Search " + title);
+            $j("#filterPopupDiv").show(500);
+        
+        	addDistinctValues('#sObjectRecordDisplayTable tbody tr td:nth-child('+ (colIndex+1) + ')');
+        	
+        	console.log(filteredItems);
+        	//Maintaining state of filtered checkboxes
+        	$j('.chkFilterSelect').each(function(){
+        	   if($j.inArray($j(this).parent().text(),filteredItems)!= -1 && colIndex == filteredColumnIndex)
+        	       $j(this).prop('checked',true);
+        	});
+        	
+	        // Keyup event listener for columnwise filter inputbox
+	        $j("#filterPopupDiv input[type=text]").on( 'keyup change', function (event) {
+	            if (event.keyCode == 27 || $j(this).val() == '') {
+	                //if esc is pressed we want to clear the value of search box
+	                $j(this).val('');
+	                //we want each row to be visible because if nothing
+	                //is entered then all rows are matched.
+	                $j('#sObjectRecordDisplayTable tbody tr').removeClass('visible').show().addClass('visible');
+	            }
+	                     
+	            //if there is text, lets filter
+	            else {
+	                //alert('should call filter');
+	                var query = this.value;
+	                query = $j.trim(query);
+	                //query.replace(/ /gi, '|'); //add OR for regex query
+	                filterColumnWise('#sObjectRecordDisplayTable tbody tr td:nth-child('+ (colIndex+1) + ')',query,colIndex);
+	            }
+	        }); 
+        });   
+        
+       //Click event listener for clear filter link on popup
+        $j("#clearFilter").click(function() {
+            $j('#txtQuery').val('');
+            $j(".chkFilterSelect").prop('checked',false);
+            $j('tbody tr').show().addClass('visible');
+        });
+        
+       //Click event listener for cancel button on popup
+        $j("#btnCancel").click(function() {
+            $j("#filterPopupDiv").hide(400);
+        });        
+        
+        var filteredItems = []; //Saves state of the filtered items
+        var filteredColumnIndex = 0;
+         
+       //Click event listener for filter button on popup
+        $j("#btnFilter").click(function() {
+        	var query = '';
+        	var keywords = [];
+            $j(".chkFilterSelect").each(function(){
+               if($j(this).is(':checked')){
+                   keywords.push($j(this).parent().text());
+               }            	
+            });
+
+            query = keywords.join('|');
+            var colIndex = parseInt($j('#lblColumnIndex').val());
+            filteredItems = keywords;
+            filteredColumnIndex = colIndex;            
+            console.log('Query===> ' + query);
+            console.log(colIndex+1);
+            filterColumnWise('#sObjectRecordDisplayTable tbody tr td:nth-child('+ (colIndex+1) + ')',query,colIndex);
+            $j("#filterPopupDiv").hide(400);
+        });        
+           
+	  //filter results based on query
+		function filter(selector, query) {
+		  query =   $j.trim(query); //trim white space
+		  $j(selector).each(function() {
+		    ($j(this).text().search(new RegExp(query, "i")) < 0) ? $j(this).hide().removeClass('visible') : $j(this).show().addClass('visible');
+		  });
+		} 
+		
+		//filter results columnwise based on query
+		function filterColumnWise(selector,query,colIndex){
+		    query =   $j.trim(query);  
+			$j(selector).each(function (colIndex) {
+			    ($j(this).text().search(new RegExp(query, "i")) < 0) ? $j(this).parent().hide().removeClass('visible') : $j(this).parent().show().addClass('visible');
+			});    		  
+		} 
+		
+		//function to place the element at mentioned position
+		function placeDiv(x_pos, y_pos,selector) {
+		     $j(selector).css({top: y_pos, left: x_pos, position : "absolute"});
+		}	
+		
+		//function to find and add distinct column values in popup
+		function addDistinctValues(selector){
+			var selectItem = {}; // object to store distinct values with checkboxes
+			var selectItems =  []; // my array
+			//selectItems.removeData();
+			$j(selector).each(function (colIndex) {
+			   selectItem = {
+			   		selectValue : $j(this).find(".inputFieldClass").val().trim(),
+			   		isSelected : false
+			   } 
+		   	   selectItems.push(selectItem);			   
+  			});	
+  			
+			selectItems = $j.distinct(selectItems);
+			$j(".distinctValues").remove();
+			$j.each( selectItems, function(index, selectItem){
+				$j("#divDistinctValues").append('<div class = \"distinctValues\">' 
+												+ '<input class ="chkFilterSelect"  type="checkbox" value=' + selectItem.isSelected +  '/>'
+												+  selectItem.selectValue	
+												+ '</div>'
+				);	
+			});			
+	
+		}	
+		
+		//Plugin for getting distinct values of an array
+		$j.extend({
+		    distinct : function(anArray) {
+		       var dupes = {};
+		       var result = [];
+		       $j.each(anArray, function(i,v){
+		           if (!dupes[v.selectValue]){
+		           		dupes[v.selectValue] = true;
+		           		result.push(v);
+		           } 
+		       });
+		       console.log
+		       return result;
+		    }
+		});		                                            
+    </script>
+</apex:page>

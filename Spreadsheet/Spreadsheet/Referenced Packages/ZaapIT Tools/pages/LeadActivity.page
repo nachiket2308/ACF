@@ -1,0 +1,80 @@
+<apex:page standardController="lead" showHeader="false" sidebar="false"> 
+<c:zp_ifrm_helper />
+  <a href="/{!lead.id}" target="_top"><div class="h1"><apex:outputText value="{!Lead.name}">
+    </apex:outputText></div></a>
+    
+<apex:relatedList subject="{!lead}" list="OpenActivities"/>
+<apex:relatedList subject="{!lead}" list="ActivityHistories"/>
+
+
+
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <script>
+    google.load('visualization', '1', { 'packages': ['map'] });
+    google.setOnLoadCallback(drawMap);
+
+    function drawMap() {
+    var d1=[
+        ['Address', 'Explanation'], 
+        [$("#Addr").text().replace(/\n|\r| \, |\, \,|\'/ig," "), '{!$Label.Contact_address}: '+$("#Addr").text().replace(/\n|\r| \, |\, \,|\'/ig," ")],
+         ];
+         addDir1(d1);
+      var data = google.visualization.arrayToDataTable(d1);
+
+    var options = { showTip: true ,useMapTypeControl:false,enableScrollWheel:false,mapType:'terrain',zoomLevel:12};
+
+    var map = new google.visualization.Map(document.getElementById('chart_div'));
+
+    map.draw(data, options);
+     
+      google.visualization.events.addListener(map, 'error', function(){
+ 	$("#chart_div").html("{!$Label.Error_creating_map}<br/><br/>"+d1[1][1]).height("auto").css({"background-color":"transparent"});
+ 	});
+  };
+   </script>
+     <apex:pageBlock title="{!$Label.Contact_address}">
+   <div id="chart_div"></div>
+ <textarea id="Addr" class="hd1">
+ {!lead.Street}, {!lead.City}, {!lead.State}, {!lead.Country}
+ </textarea>
+
+ </apex:pageBlock>
+
+
+<!--
+<apex:pageBlock title="Open Activities" >
+<apex:pageblockTable value="{!lead.OpenActivities}" var="act" id="theTable" rowClasses="odd,even"
+
+                        styleClass="tableClass">
+<apex:column value="{!act.Subject}">
+           </apex:column>
+           
+           <apex:column value="{!act.ActivityDate}">
+           </apex:column>
+  <apex:column value="{!act.Status}">
+           </apex:column>         
+           <apex:column value="{!act.Description}">
+           </apex:column>
+
+    </apex:pageblockTable >
+</apex:pageBlock>
+
+<apex:pageBlock title="Activity History">
+<apex:pageblockTable value="{!lead.ActivityHistories}" var="act" id="theTable" rowClasses="odd,even"
+
+                        styleClass="tableClass">
+<apex:column value="{!act.Subject}">
+           </apex:column>
+           
+           <apex:column value="{!act.ActivityDate}">
+           </apex:column>
+  <apex:column value="{!act.Status}">
+           </apex:column>         
+           <apex:column value="{!act.Description}">
+           </apex:column>
+
+    </apex:pageblockTable >
+</apex:pageBlock>
+-->
+</apex:page>

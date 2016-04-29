@@ -1,0 +1,49 @@
+<apex:page standardController="Account" showHeader="false" sidebar="false" > 
+<c:zp_ifrm_helper />
+
+  <a href="/{!Account.id}" target="_top"><div class="h1"><apex:outputText value="{!Account.name}">
+    </apex:outputText></div></a>
+    
+<apex:relatedList subject="{!Account}" list="OpenActivities"/>
+<apex:relatedList subject="{!Account}" list="Opportunities"/>
+<apex:relatedList subject="{!Account}" list="ActivityHistories"/>
+
+
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <script>
+    google.load('visualization', '1', { 'packages': ['map'] });
+    google.setOnLoadCallback(drawMap);
+
+    function drawMap() {
+    var d1=[
+        ['Address', 'Explanation'], 
+        [$("#shippingAddr").text().replace(/\n|\r| \, |\, \,|\'/ig," "), '{!$Label.Shipping_Address} '+$("#shippingAddr").text().replace(/\n|\r| \, |\, \,|\'/ig," ")],
+       {!IF(account.billingStreet=='' || account.billingStreet==account.shippingStreet,'//','')} [$("#billingAddr").text().replace(/\n|\r| \, |\, \,|\'/ig," "), '{!$Label.Billing_Address} '+$("#billingAddr").text().replace(/\n|\r| \, |\, \,|\'/ig," ")],
+        ];
+        addDir1(d1);
+      var data = google.visualization.arrayToDataTable(d1);
+
+    var options = { showTip: true ,useMapTypeControl:false,enableScrollWheel:false,mapType:'terrain',{!IF(account.billingStreet=='','zoomLevel:12','')}};
+
+    var map = new google.visualization.Map(document.getElementById('chart_div'));
+
+    map.draw(data, options);
+    
+   google.visualization.events.addListener(map, 'error', function(){
+ 	$("#chart_div").html("{!$Label.Error_creating_map}<br/><br/>"+d1[1][1]).height("auto").css({"background-color":"transparent"});
+ 	}); 
+ 	
+  };
+   </script>
+     <apex:pageBlock title="{!$Label.Contact_address}">
+   <div id="chart_div"></div>
+ <textarea id="shippingAddr" class="hd1">
+ {!account.shippingStreet}, {!account.shippingCity}, {!account.shippingState}, {!account.shippingCountry}
+ </textarea>
+ <textarea id="billingAddr"  class="hd1">
+ {!account.billingStreet}, {!account.billingCity}, {!account.billingState}, {!account.billingCountry}
+ </textarea> 
+
+ </apex:pageBlock>
+</apex:page>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <webLinks>
+        <fullName>Add_to_Campaign</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Add to Campaign</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>var checkedIds=&quot;&quot;; 
+var checkedId1=&quot;&quot;; 
+var leadCount=0; 
+$(&quot;.lcbX input:checked&quot;).each(function(){ 
+checkedId1=$(this).parents(&quot;.lcbX:first&quot;).attr(&quot;rid&quot;); 
+//alert(checkedId1.length);
+if(checkedId1!=null &amp;&amp; checkedId1.length==18){
+    checkedId1=checkedId1.substring(0,15);
+}
+checkedIds+=&quot;&amp;ids=&quot;+checkedId1; 
+leadCount++; 
+}); 
+if(leadCount&lt;1){ 
+alert(&quot;Please select at least one row&quot;); 
+}else{ 
+var ret1=escape(&apos;../apex/zaapit__Add_To_Campaign_Completed?isdtp=vw&amp;s=&apos;);
+
+var win1=window.open(&quot;/ui/campaign/MassAddCMFromListingWizard?ent=lead&amp;retURL=&quot;+ret1+&quot;0&amp;wizardRetUrl=&quot;+ret1+&quot;1&amp;macmflw_idSourceType=List&amp;macmflw_memberType=Lead&quot;+checkedIds+&quot;&amp;isdtp=vw&quot;,&quot;Add to Campaign&quot;, &quot;height=800,width=800,top=100,left=100,fullscreen=0,scrollbars=yes&quot;);
+
+var timer = setInterval(function() { 
+if(win1.closed) { 
+clearInterval(timer); 
+$(&quot;.seatchInptFZP&quot;).keyup(); 
+} 
+}, 1000); 
+
+
+} 
+return false;</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Convert_leads</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Convert</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <url>var checkedIds=&quot;&quot;; 
+var checkedId1=&quot;&quot;; 
+var contOrg=&quot;&quot;; 
+var acc1=&quot;&quot;; 
+var contactCount=0; 
+$(&quot;.lcbX input:checked&quot;).each(function(){ 
+checkedId1=$(this).parents(&quot;.lcbX:first&quot;).attr(&quot;rid&quot;); 
+contOrg=contOrg+&quot;,.RID&quot;+checkedId1; 
+if(checkedId1!=null &amp;&amp; checkedId1.length&gt;15){ 
+checkedId1=checkedId1.substring(0,15); 
+} 
+checkedIds+=&quot;&amp;id=&quot;+checkedId1; 
+contactCount++; 
+}); 
+if(contactCount&gt;1 || contactCount&lt;1){ 
+ alert(&quot;Please select exactly 1 lead to convert!&quot;); 
+}else{ 
+
+var win1=window.open(&quot;/lead/leadconvert.jsp?&amp;retURL=%2Fapex%2Fzaapit__Convert_Completed&amp;isdtp=vw&quot;+checkedIds ,&quot;Merge_Contacts&quot;,&quot;height=800,width=800,top=100,left=100,fullscreen=0,scrollbars=yes&quot;); 
+win1.focus(); 
+
+var timer = setInterval(function() { 
+if(win1.closed) { 
+clearInterval(timer); 
+//$(&quot;.seatchInptFZP&quot;).keyup(); 
+jumpToClk(currPageCls,600);
+} 
+}, 1000); 
+
+} 
+return false;</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Merge_Leads1</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Merge Leads</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>false</requireRowSelection>
+        <url>var checkedIds=&quot;&quot;; 
+var checkedId1=&quot;&quot;; 
+var leadCount=0;
+$(&quot;.lcbX input:checked&quot;).each(function(){ 
+checkedId1=$(this).parents(&quot;.lcbX:first&quot;).attr(&quot;rid&quot;);
+checkedIds+=&quot;&amp;cid=&quot;+checkedId1; 
+leadCount++;
+});
+if(leadCount&gt;3){ 
+alert(&quot;Please select up to 3 leads to merge!&quot;); 
+}else if(leadCount&lt;2){ 
+alert(&quot;Please select at least 2 leads to merge!&quot;); 
+}else{ 
+var win1=window.open(&quot;/lead/leadmergewizard.jsp?currentStage=0&amp;goNext=Merge%20Leads&amp;id=&quot;+checkedId1+&quot;&amp;p1=1&amp;p3=1&amp;p4=1&amp;p6=1&amp;p7=&amp;p8=&amp;visited_0=1&quot;+checkedIds+&quot;&amp;retURL=%2Fapex%2Fzaapit__Merge_Completed&amp;isdtp=vw&quot;,&quot;Merge_Leads&quot;,&quot;height=800,width=800,top=100,left=100,fullscreen=0,scrollbars=yes&quot;);
+
+var timer = setInterval(function() {   
+    if(win1.closed) {  
+        clearInterval(timer);  
+        //$(&quot;.seatchInptFZP&quot;).keyup(); 
+        jumpToClk(currPageCls,600);
+    }  
+}, 1000); 
+} 
+return false;</url>
+    </webLinks>
+    <webLinks>
+        <fullName>zp_actions</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>ZP Actions</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <url>{!requireScript($Label.zp_action_link)}</url>
+    </webLinks>
+</CustomObject>

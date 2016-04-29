@@ -1,0 +1,34 @@
+<apex:page controller="ListViewFilterController">
+    <style>
+        h3{
+            color: black;
+        }
+        .outputTextClass{
+            
+        }
+    </style>
+    <apex:form id="pageForm">
+        <apex:pageBlock id="filterPageBlock">
+            <apex:pageBlockSection title="Step 1. Enter View Name" collapsible="false">
+                <apex:outputText styleClass="outputTextClass" value="View Name:"/>
+                <apex:inputText value="{!viewNameString}" id="viewName"/>
+                <apex:outputText styleClass="outputTextClass" value="View Unique Name:"/>
+                <apex:inputText value="{!viewUniqueNameString}" id="viewUniqueName"/>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="Step 2. Specify Filter Criteria" collapsible="false">
+                
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="Step 3. Select Fields to Display" collapsible="false">
+                <c:MultiselectPicklist leftLabel="Available Fields"
+                    leftOption="{!displayUserFieldsList}"
+                    rightLabel="Selected Fields"
+                    rightOption="{!selectedFields}"
+                    size="14"
+                    width="150px"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <apex:panelGrid columns="2" >
+            <apex:commandButton value="Save" action="{!checkSelectedValues}"/>
+        </apex:panelGrid>
+    </apex:form>
+</apex:page>

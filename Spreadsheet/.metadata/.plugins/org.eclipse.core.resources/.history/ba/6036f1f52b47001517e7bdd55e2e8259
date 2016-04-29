@@ -1,0 +1,81 @@
+<apex:component >
+<style>
+.hd1{display:none;}
+.h1{background:#f8f8f8;padding:7px;font-weight:bold;text-align:center;font-size:12pt;}
+.h2{background:#f8f8f8;padding:7px;font-weight:bold;text-align:center;}
+.bPageBlock.brandSecondaryBrd.secondaryPalette,.bPageBlock.brandSecondaryBrd.apexDefaultPageBlock.secondaryPalette{border-top: 3px solid #56458C;}
+</style>
+
+<script type="text/javascript" src="{!$Resource.zp_jquery172}"></script>
+<script>
+function srcUp(t){
+    navigateToUrl(t);
+}
+function srcSelf(t){
+	self.location=(t);
+}
+function getURLParameter(name) {
+  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+}
+function getURLParameter2(name,url) {
+  url="?"+url.split("?")[1];
+  return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(url)||[,""])[1].replace(/\+/g, '%20'))||null;
+}
+function navigateToUrl(t){
+	var isMultiIframes=false;
+    var pw1=getURLParameter("pw1");
+    if(pw1!=null && pw1!=''){
+    	var pw2=getURLParameter2("pw1",pw1);
+    	if(pw2!=null && pw2!=''){
+    		pw1=pw2;
+    		isMultiIframes=true;
+    	}
+    }
+    var url=t.replace("isdtp=vw","aaa=aa1");
+    var retURL="retURL=";
+    if(pw1!=null && pw1!="" && url.indexOf(retURL)>-1){
+        var idx=(url.indexOf(retURL)+retURL.length);
+        var eRet=idx;
+        var retAnd=url.indexOf("&",eRet+1);
+        url=url.substring(0,eRet)+(isMultiIframes?"/apex/zaapit__closewin":escape(pw1))+(retAnd==-1 ?"":url.substring(retAnd));
+        
+    }
+   // alert(t+"\n"+url);
+   if(!isMultiIframes){
+    	window.top.location=url;
+   }else{
+    
+		var win1=window.open(url+"&isdtp=vw" ,"popupx1","height="+($(self).height()+0.95)+",width="+($(self).width())+",top=100,left=100,fullscreen=0,scrollbars=yes"); 
+		win1.focus(); 
+		
+		var timer = setInterval(function() { 
+		if(win1.closed) { 
+			clearInterval(timer); 
+			self.location.reload(true);
+		} 
+		}, 1000); 
+	}
+}
+function lnkFx1(){
+    $("a[href]").each(function(){
+        var href1=$(this).attr("href");
+        if(href1.indexOf("http")==0){
+           $(this).attr("onclick","navigateToUrl($(this).attr('href'));return false;");
+        }
+    });
+}
+$(document).ready(function(){
+    lnkFx1();
+});
+
+function addDir1(d1){
+        for(var i=1;i<d1.length;i++){
+            d1[i][1]='<a href="https://www.google.co.il/maps/dir/'+escape($("#userAddr").text().replace(/\n|\r| \, |\, \,|\'/ig," "))+'/'+escape(d1[i][0])+'/" target="_blank">'+d1[i][1]+'</a>';
+            
+        }
+    }
+</script>
+ <textarea id="userAddr" class="hd1">
+ {!$user.Street}, {!$user.City}, {!$user.State}, {!$user.Country}
+ </textarea>
+</apex:component>

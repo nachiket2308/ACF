@@ -1,0 +1,10 @@
+Aug 20, 2015 4:19:55 PM com.genuitec.pulse.client.deliverypackage.runtime.internal.Activator initializeLoggers
+INFO: Package starting up at Thu Aug 20 16:19:55 IST 2015
+Aug 20, 2015 4:47:02 PM com.genuitec.pulse.client.deliverypackage.runtime.UpdatesService checkForUpdates
+INFO: Latest version of package is installed; update check finished in 38678ms
+Aug 20, 2015 4:47:28 PM org.apache.http.impl.client.DefaultRequestDirector tryExecute
+INFO: I/O exception (org.apache.http.NoHttpResponseException) caught when processing request to {s}->https://dl-ssl.google.com: The target server failed to respond
+Aug 20, 2015 4:47:28 PM org.apache.http.impl.client.DefaultRequestDirector tryExecute
+INFO: Retrying request to {s}->https://dl-ssl.google.com
+Aug 20, 2015 5:19:06 PM apex.jorje.parser.impl.BaseApexLexerImpl dedupe
+INFO: Deduped array ApexLexer.DFA26_transition. Found 7992650 shorts which is 15MB not including array overhead. Removed 7204963 shorts which is 13MB not counting array overhead. Took 35ms.
